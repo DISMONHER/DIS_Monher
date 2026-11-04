@@ -24,8 +24,24 @@
         <a class="nav-link @Activo("FinishedProducts")" href="/FinishedProducts/Index"><i class="fa-solid fa-box-archive"></i> Productos Terminados</a>
         <a class="nav-link @Activo("Production")" href="/Production/Index"><i class="fa-solid fa-gears"></i> Órdenes de Producción</a>
         <small class="nav-title">VENTAS</small>
-        <a class="nav-link @Activo("Sales", act != "ReporteVentas")" href="/Sales/Pedidos"><i class="fa-solid fa-cart-shopping"></i> Pedidos y Ventas</a>
-        <a class="nav-link @Activo("Sales", act == "ReporteVentas")" href="/Sales/ReporteVentas"><i class="fa-solid fa-chart-pie"></i> Reportes</a>
+
+<a class="nav-link @Activo("Sales", act == "Pedidos" || act == "VerificarDisponibilidad" || act == "Facturacion")"
+   href="/Sales/Pedidos">
+    <i class="fa-solid fa-cart-shopping"></i>
+    Pedidos y Ventas
+</a>
+
+<a class="nav-link @Activo("Sales", act == "Despachos" || act == "DespachoView")"
+   href="/Sales/Despachos">
+    <i class="fa-solid fa-truck-fast"></i>
+    Despacho y Entrega
+</a>
+
+<a class="nav-link @Activo("Sales", act == "ReporteVentas")"
+   href="/Sales/ReporteVentas">
+    <i class="fa-solid fa-chart-pie"></i>
+    Reportes
+</a>
     </aside>
 
     <main class="main-content">

@@ -5165,19 +5165,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Alexander\\.nuget\\packages\\": {}
+    "C:\\Users\\dcusi\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "d:\\Escritorio\\DIS_Monher-main\\DIS_Monher-main\\DIS_Monher.csproj",
+      "projectUniqueName": "C:\\Users\\dcusi\\DIS_Monher\\DIS_Monher.csproj",
       "projectName": "DIS_Monher",
-      "projectPath": "d:\\Escritorio\\DIS_Monher-main\\DIS_Monher-main\\DIS_Monher.csproj",
-      "packagesPath": "C:\\Users\\Alexander\\.nuget\\packages\\",
-      "outputPath": "d:\\Escritorio\\DIS_Monher-main\\DIS_Monher-main\\obj\\",
+      "projectPath": "C:\\Users\\dcusi\\DIS_Monher\\DIS_Monher.csproj",
+      "packagesPath": "C:\\Users\\dcusi\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\dcusi\\DIS_Monher\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\Alexander\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\dcusi\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net9.0"
@@ -5247,7 +5247,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.320/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.319/PortableRuntimeIdentifierGraph.json"
       }
     }
   }
