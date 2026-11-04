@@ -87,6 +87,8 @@ namespace DIS_Monher.Models
         public string Estado { get; set; } = "Pendiente"; // Pendiente, En Proceso, Terminado, Cancelado
         public string Responsable { get; set; } = string.Empty;
         public List<DetalleOrdenMaterial> MaterialesAsignados { get; set; } = new();
+        public List<AvanceProduccion> Avances { get; set; } = new();
+        public List<Notificacion> Notificaciones { get; set; } = new();
     }
 
     public class DetalleOrdenMaterial
@@ -96,6 +98,10 @@ namespace DIS_Monher.Models
         public int MaterialId { get; set; }
         public Material? Material { get; set; }
         public decimal Cantidad { get; set; }
+        public string ResponsableAsignacion { get; set; } = string.Empty;
+        public DateTime FechaAsignacion { get; set; } = DateTime.Now;
+        public string? JustificacionAjuste { get; set; }
+        public DateTime? FechaUltimoAjuste { get; set; }
     }
 
     public class InspeccionCalidad
@@ -109,6 +115,7 @@ namespace DIS_Monher.Models
         public DateTime Fecha { get; set; } = DateTime.Now;
         public bool Aprobado { get; set; }
         public string Observaciones { get; set; } = string.Empty;
+        public List<EvidenciaCalidad> Evidencias { get; set; } = new();
     }
 
     public class Cliente

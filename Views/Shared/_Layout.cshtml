@@ -37,6 +37,13 @@
     Despacho y Entrega
 </a>
 
+<a asp-controller="Notificaciones"
+   asp-action="Index"
+   class="nav-link @Activo("Notificaciones")">
+    <i class="fa-solid fa-bell"></i>
+    Notificaciones
+</a>
+
 <a class="nav-link @Activo("Sales", act == "ReporteVentas")"
    href="/Sales/ReporteVentas">
     <i class="fa-solid fa-chart-pie"></i>
