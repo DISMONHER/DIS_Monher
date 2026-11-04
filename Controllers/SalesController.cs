@@ -116,54 +116,168 @@ public async Task<IActionResult> ConfirmarReserva(int id)
     TempData["Ok"] = "Stock reservado. Continúe con el despacho.";
     return RedirectToAction(nameof(DespachoView), new { id });
 }
+        // PANEL GENERAL DE DESPACHOS
+        public async Task<IActionResult> Despachos()
+        {
+            ViewBag.PedidosPendientes = await _context.Pedidos
+                .Include(p => p.Cliente)
+                .Where(p => p.Estado == "Confirmado")
+                .OrderBy(p => p.FechaEntrega)
+                .ToListAsync();
 
-public async Task<IActionResult> DespachoView(int id)
-{
-    var pedido = await _context.Pedidos.Include(p => p.Cliente).FirstOrDefaultAsync(p => p.Id == id);
-    if (pedido == null) return NotFound();
-    return View(pedido);
-}
+            return View(await _context.Despachos
+                .Include(d => d.Pedido)
+                .ThenInclude(p => p!.Cliente)
+                .OrderByDescending(d => d.FechaDespacho)
+                .ToListAsync());
+        }
 
-[HttpPost]
-public async Task<IActionResult> ProgramarDespacho(int pedidoId, string transportista)
-{
-    var pedido = await _context.Pedidos.Include(p => p.Detalles).ThenInclude(d => d.ProductoTerminado)
-        .FirstOrDefaultAsync(p => p.Id == pedidoId);
-    if (pedido == null) return NotFound();
-    if (pedido.Estado != "Confirmado")
-    {
-        TempData["Error"] = "Solo se puede despachar un pedido con stock confirmado.";
-        return RedirectToAction(nameof(Pedidos));
-    }
-    if (pedido.Detalles.Any(d => d.ProductoTerminado!.StockActual < d.Cantidad))
-    {
-        TempData["Error"] = "El stock físico ya no alcanza para este pedido.";
-        return RedirectToAction(nameof(VerificarDisponibilidad), new { id = pedidoId });
-    }
+        // FORMULARIO PARA PROGRAMAR DESPACHO
+        public async Task<IActionResult> DespachoView(int id)
+        {
+            var pedido = await _context.Pedidos
+                .Include(p => p.Cliente)
+                .FirstOrDefaultAsync(p => p.Id == id);
 
-    foreach (var d in pedido.Detalles) d.ProductoTerminado!.StockActual -= d.Cantidad;
-    pedido.Estado = "Despachado";
-    _context.Despachos.Add(new Despacho { PedidoId = pedidoId, Transportista = transportista, FechaDespacho = DateTime.Now, EstadoEntrega = "En Camino" });
+            if (pedido == null)
+                return NotFound();
 
-    await _context.SaveChangesAsync();
-    TempData["Ok"] = "Despacho registrado y stock descontado.";
-    return RedirectToAction(nameof(Facturacion), new { id = pedidoId });
-}
+            if (pedido.Estado != "Confirmado")
+            {
+                TempData["Error"] =
+                    "El pedido debe estar confirmado para programar su despacho.";
 
-// NUEVO: cierra el ciclo de distribución
-[HttpPost]
-public async Task<IActionResult> ConfirmarEntrega(int despachoId)
-{
-    var d = await _context.Despachos.FindAsync(despachoId);
-    if (d != null && d.EstadoEntrega != "Entregado")
-    {
-        d.EstadoEntrega = "Entregado";
-        d.FechaEntregaReal = DateTime.Now;
-        await _context.SaveChangesAsync();
-        TempData["Ok"] = "Entrega confirmada.";
-    }
-    return RedirectToAction(nameof(ReporteVentas));
-}
+                return RedirectToAction(nameof(Despachos));
+            }
+
+            return View(pedido);
+        }
+
+        // REGISTRAR SALIDA Y DESCONTAR STOCK
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ProgramarDespacho(
+            int pedidoId, string transportista)
+        {
+            if (string.IsNullOrWhiteSpace(transportista) ||
+                transportista.Trim().Length > 150)
+            {
+                TempData["Error"] =
+                    "Ingrese un transportista válido (máximo 150 caracteres).";
+
+                return RedirectToAction(
+                    nameof(DespachoView), new { id = pedidoId });
+            }
+
+            await using var transaction =
+                await _context.Database.BeginTransactionAsync(
+                    System.Data.IsolationLevel.Serializable);
+
+            var pedido = await _context.Pedidos
+                .Include(p => p.Detalles)
+                .ThenInclude(d => d.ProductoTerminado)
+                .FirstOrDefaultAsync(p => p.Id == pedidoId);
+
+            if (pedido == null)
+                return NotFound();
+
+            if (pedido.Estado != "Confirmado")
+            {
+                TempData["Error"] =
+                    "Solo se puede despachar un pedido con stock confirmado.";
+
+                return RedirectToAction(nameof(Pedidos));
+            }
+
+            if (await _context.Despachos
+                .AnyAsync(d => d.PedidoId == pedidoId))
+            {
+                TempData["Error"] =
+                    "Este pedido ya tiene un despacho registrado.";
+
+                return RedirectToAction(nameof(Despachos));
+            }
+
+            // Comprobar stock agrupando cantidades por producto.
+            var cantidades = pedido.Detalles
+                .GroupBy(d => d.ProductoTerminadoId)
+                .Select(g => new
+                {
+                    ProductoId = g.Key,
+                    Cantidad = g.Sum(d => d.Cantidad)
+                })
+                .ToList();
+
+            var productos = pedido.Detalles
+                .Where(d => d.ProductoTerminado != null)
+                .Select(d => d.ProductoTerminado!)
+                .DistinctBy(p => p.Id)
+                .ToDictionary(p => p.Id);
+
+            foreach (var item in cantidades)
+            {
+                if (!productos.TryGetValue(item.ProductoId, out var producto) ||
+                    producto.StockActual < item.Cantidad)
+                {
+                    TempData["Error"] =
+                        "El stock físico no alcanza para despachar este pedido.";
+
+                    return RedirectToAction(
+                        nameof(VerificarDisponibilidad),
+                        new { id = pedidoId });
+                }
+            }
+
+            // Descontar existencias físicas.
+            foreach (var item in cantidades)
+            {
+                productos[item.ProductoId].StockActual -= item.Cantidad;
+            }
+
+            pedido.Estado = "Despachado";
+
+            _context.Despachos.Add(new Despacho
+            {
+                PedidoId = pedidoId,
+                Transportista = transportista.Trim(),
+                FechaDespacho = DateTime.Now,
+                EstadoEntrega = "En Camino"
+            });
+
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            TempData["Ok"] =
+                "Despacho registrado y stock descontado.";
+
+            return RedirectToAction(
+                nameof(Facturacion), new { id = pedidoId });
+        }
+
+        // CONFIRMAR ENTREGA AL CLIENTE
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ConfirmarEntrega(int despachoId)
+        {
+            var despacho = await _context.Despachos
+                .FindAsync(despachoId);
+
+            if (despacho == null)
+                return NotFound();
+
+            if (despacho.EstadoEntrega != "Entregado")
+            {
+                despacho.EstadoEntrega = "Entregado";
+                despacho.FechaEntregaReal = DateTime.Now;
+
+                await _context.SaveChangesAsync();
+
+                TempData["Ok"] =
+                    "Entrega confirmada correctamente.";
+            }
+
+            return RedirectToAction(nameof(Despachos));
+        }
 
 public async Task<IActionResult> Facturacion(int id)
 {
@@ -174,42 +288,136 @@ public async Task<IActionResult> Facturacion(int id)
 }
 
 [HttpPost]
-public async Task<IActionResult> EmitirComprobante(int pedidoId, string tipoComprobante, string metodoPago)
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> EmitirComprobante(
+    int pedidoId,
+    string tipoComprobante,
+    string metodoPago)
 {
-    var pedido = await _context.Pedidos.Include(p => p.Cliente).FirstOrDefaultAsync(p => p.Id == pedidoId);
-    if (pedido == null) return NotFound();
-
-    if (pedido.Estado != "Despachado" || await _context.ComprobantesVenta.AnyAsync(c => c.PedidoId == pedidoId))
+    if (tipoComprobante != "Boleta" &&
+        tipoComprobante != "Factura")
     {
-        TempData["Error"] = "Solo se factura un pedido despachado y sin comprobante previo.";
+        TempData["Error"] = "Seleccione un tipo de comprobante válido.";
+        return RedirectToAction(nameof(Facturacion),
+            new { id = pedidoId });
+    }
+
+    if (string.IsNullOrWhiteSpace(metodoPago) ||
+        !new[] {
+            "Transferencia Bancaria",
+            "Efectivo",
+            "Tarjeta de Crédito"
+        }.Contains(metodoPago))
+    {
+        TempData["Error"] = "Seleccione un método de pago válido.";
+        return RedirectToAction(nameof(Facturacion),
+            new { id = pedidoId });
+    }
+
+    await using var transaction =
+        await _context.Database.BeginTransactionAsync(
+            System.Data.IsolationLevel.Serializable);
+
+    var pedido = await _context.Pedidos
+        .Include(p => p.Cliente)
+        .FirstOrDefaultAsync(p => p.Id == pedidoId);
+
+    if (pedido == null)
+        return NotFound();
+
+    var existente = await _context.ComprobantesVenta
+        .FirstOrDefaultAsync(c => c.PedidoId == pedidoId);
+
+    if (existente != null)
+    {
+        return RedirectToAction(nameof(VerComprobante),
+            new { id = existente.Id });
+    }
+
+    if (pedido.Estado != "Despachado")
+    {
+        TempData["Error"] =
+            "Solo se puede facturar un pedido despachado.";
+
         return RedirectToAction(nameof(Pedidos));
     }
-    if (tipoComprobante == "Factura" && pedido.Cliente!.Documento.Length != 11)
+
+    if (tipoComprobante == "Factura" &&
+        (pedido.Cliente?.Documento?.Length != 11 ||
+         !pedido.Cliente.Documento.All(char.IsDigit)))
     {
-        TempData["Error"] = "Para emitir factura el cliente debe tener RUC (11 dígitos).";
-        return RedirectToAction(nameof(Facturacion), new { id = pedidoId });
+        TempData["Error"] =
+            "Para emitir una factura se requiere un RUC de 11 dígitos.";
+
+        return RedirectToAction(nameof(Facturacion),
+            new { id = pedidoId });
     }
 
-    var serie = tipoComprobante == "Factura" ? "F001" : "B001";
-    var correlativo = await _context.ComprobantesVenta.CountAsync(c => c.TipoComprobante == tipoComprobante) + 1;
-    var subtotal = pedido.Total / 1.18m;
+    string serie = tipoComprobante == "Factura"
+        ? "F001"
+        : "B001";
 
-    _context.ComprobantesVenta.Add(new ComprobanteVenta
+    var numeros = await _context.ComprobantesVenta
+        .Where(c => c.TipoComprobante == tipoComprobante)
+        .Select(c => c.NumeroComprobante)
+        .ToListAsync();
+
+    int ultimo = numeros
+        .Where(n => n != null && n.StartsWith(serie + "-"))
+        .Select(n => int.TryParse(n!.Substring(5), out int valor)
+            ? valor : 0)
+        .DefaultIfEmpty(0)
+        .Max();
+
+    int correlativo = ultimo + 1;
+
+    decimal subtotal = Math.Round(
+        pedido.Total / 1.18m, 2);
+
+    decimal igv = pedido.Total - subtotal;
+
+    var comprobante = new ComprobanteVenta
     {
-        PedidoId = pedidoId,
+        PedidoId = pedido.Id,
         NumeroComprobante = $"{serie}-{correlativo:D7}",
         TipoComprobante = tipoComprobante,
-        Subtotal = Math.Round(subtotal, 2),
-        IGV = Math.Round(pedido.Total - subtotal, 2),
+        Subtotal = subtotal,
+        IGV = igv,
         Total = pedido.Total,
         MetodoPago = metodoPago,
         FechaEmision = DateTime.Now
-    });
+    };
+
+    _context.ComprobantesVenta.Add(comprobante);
+
     pedido.Estado = "Vendido";
 
     await _context.SaveChangesAsync();
-    TempData["Ok"] = "Comprobante emitido correctamente.";
-    return RedirectToAction(nameof(ReporteVentas));
+    await transaction.CommitAsync();
+
+    TempData["Ok"] =
+        "Comprobante generado correctamente.";
+
+    return RedirectToAction(nameof(VerComprobante),
+        new { id = comprobante.Id });
+}
+
+// MOSTRAR COMPROBANTE GENERADO
+[HttpGet]
+public async Task<IActionResult> VerComprobante(int id)
+{
+    var comprobante = await _context.ComprobantesVenta
+        .Include(c => c.Pedido)
+            .ThenInclude(p => p!.Cliente)
+        .Include(c => c.Pedido)
+            .ThenInclude(p => p!.Detalles)
+                .ThenInclude(d => d.ProductoTerminado)
+        .FirstOrDefaultAsync(c => c.Id == id);
+
+    if (comprobante == null)
+        return NotFound();
+
+    return View(comprobante);
 }
 
         // HU015: Reporte de Ventas y Distribución
