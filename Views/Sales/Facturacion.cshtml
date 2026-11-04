@@ -1,0 +1,103 @@
+@model DIS_Monher.Models.Pedido
+@{ ViewData["Title"] = "Cierre de Venta y Facturación"; }
+
+<div class="mb-4">
+    <h2 class="fw-bold text-dark m-0">Venta Efectiva y Comprobante (HU014)</h2>
+    <p class="text-muted small m-0">Generación de documento legal de pago para el pedido <strong class="text-primary">@Model.CodigoPedido</strong>.</p>
+</div>
+
+<div class="row g-4">
+    <!-- Vista previa de Comprobante -->
+    <div class="col-md-8">
+        <div class="card-monher p-5 bg-white border">
+            <div class="d-flex justify-content-between align-items-start mb-4">
+                <div>
+                    <h3 class="fw-bold text-primary m-0">MONHER E.I.R.L.</h3>
+                    <small class="text-muted">RUC: 20000234567 | Av. Javier Prado 1230, San Borja</small>
+                </div>
+                <div class="text-end">
+                    <span id="tituloComprobante" class="badge bg-primary px-3 py-2 fs-6">BOLETA DE VENTA ELECTRÓNICA</span>
+                </div>
+            </div>
+
+            <div class="mb-4 p-3 bg-light rounded-3">
+                <div class="row">
+                    <div class="col-6">
+                        <small class="text-muted d-block">Cliente:</small>
+                        <strong>@Model.Cliente?.RazonSocial</strong>
+                    </div>
+                    <div class="col-6 text-end">
+                        <small class="text-muted d-block">Documento:</small>
+                        <strong>@Model.Cliente?.Documento</strong>
+                    </div>
+                </div>
+            </div>
+
+            <table class="table table-borderless mb-4">
+                <thead class="border-bottom">
+                    <tr class="text-muted small">
+                        <th>Descripción</th>
+                        <th class="text-center">Cant.</th>
+                        <th class="text-end">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var d in Model.Detalles) {
+                        <tr>
+                            <td class="fw-bold text-dark">@d.ProductoTerminado?.Nombre</td>
+                            <td class="text-center">@d.Cantidad</td>
+                            <td class="text-end fw-bold">S/. @((d.Cantidad * d.Precio).ToString("N2"))</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <hr />
+
+            <div class="row justify-content-end">
+                <div class="col-md-5 text-end">
+                    <p class="mb-1 text-muted small">Subtotal: S/. @((Model.Total / 1.18m).ToString("N2"))</p>
+                    <p class="mb-1 text-muted small">IGV (18%): S/. @((Model.Total - (Model.Total / 1.18m)).ToString("N2"))</p>
+                    <h4 class="fw-bold text-primary mt-2">TOTAL: S/. @Model.Total.ToString("N2")</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Opciones de Cobro -->
+    <div class="col-md-4">
+        <div class="card-monher p-4 bg-white">
+            <h5 class="fw-bold text-dark mb-3">Emitir Comprobante</h5>
+            <form asp-action="EmitirComprobante" method="post">
+                <input type="hidden" name="pedidoId" value="@Model.Id" />
+                <div class="mb-3">
+                    <label class="form-label text-muted small fw-bold">Tipo de Documento</label>
+                    <select id="tipoComprobante" class="form-select rounded-3">
+                        <option value="Boleta">Boleta Electrónica</option>
+                        <option value="Factura">Factura Electrónica</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-muted small fw-bold">Método de Pago</label>
+                    <select name="metodoPago" class="form-select rounded-3">
+                        <option value="Transferencia Bancaria">Transferencia Bancaria</option>
+                        <option value="Efectivo">Efectivo</option>
+                        <option value="Tarjeta de Crédito">Tarjeta de Crédito</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-monher-primary w-100 py-2 mt-3">
+                    <i class="fa-solid fa-print me-2"></i> Finalizar y Emitir SUNAT
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    document.getElementById('tipoComprobante').addEventListener('change', e => {
+        document.getElementById('tituloComprobante').textContent =
+            e.target.value === 'Factura' ? 'FACTURA ELECTRÓNICA' : 'BOLETA DE VENTA ELECTRÓNICA';
+    });
+</script>
+}

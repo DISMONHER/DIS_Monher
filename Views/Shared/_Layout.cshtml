@@ -1,0 +1,49 @@
+﻿@{
+    var ctrl = ViewContext.RouteData.Values["controller"]?.ToString();
+    var act = ViewContext.RouteData.Values["action"]?.ToString();
+    string Activo(string c, bool cond = true) => ctrl == c && cond ? "active" : "";
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - MONHER</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="brand"><span class="brand-icon"><i class="fa-solid fa-cubes-stacked"></i></span> MONHER</div>
+        <small class="nav-title">INVENTARIO</small>
+        <a class="nav-link @Activo("Materials", act == "Index")" href="/Materials/Index"><i class="fa-solid fa-boxes-stacked"></i> Registro de Materiales</a>
+        <a class="nav-link @Activo("Materials", act == "ControlInventario")" href="/Materials/ControlInventario"><i class="fa-solid fa-warehouse"></i> Control de Inventario</a>
+        <small class="nav-title">PRODUCCIÓN</small>
+        <a class="nav-link @Activo("FinishedProducts")" href="/FinishedProducts/Index"><i class="fa-solid fa-box-archive"></i> Productos Terminados</a>
+        <a class="nav-link @Activo("Production")" href="/Production/Index"><i class="fa-solid fa-gears"></i> Órdenes de Producción</a>
+        <small class="nav-title">VENTAS</small>
+        <a class="nav-link @Activo("Sales", act != "ReporteVentas")" href="/Sales/Pedidos"><i class="fa-solid fa-cart-shopping"></i> Pedidos y Ventas</a>
+        <a class="nav-link @Activo("Sales", act == "ReporteVentas")" href="/Sales/ReporteVentas"><i class="fa-solid fa-chart-pie"></i> Reportes</a>
+    </aside>
+
+    <main class="main-content">
+        <div class="container-fluid">
+            @if (TempData["Ok"] != null)
+            {
+                <div class="alert alert-monher ok"><i class="fa-solid fa-circle-check"></i> @TempData["Ok"]</div>
+            }
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-monher err"><i class="fa-solid fa-circle-exclamation"></i> @TempData["Error"]</div>
+            }
+            @RenderBody()
+        </div>
+        <footer class="footer">&copy; 2026 MONHER E.I.R.L. · Sistema de Gestión Integral</footer>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

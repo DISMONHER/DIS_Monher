@@ -1,0 +1,65 @@
+@model DIS_Monher.Models.Pedido
+@{ ViewData["Title"] = "Verificar Disponibilidad"; }
+@{
+    var reservados = (Dictionary<int, int>)ViewBag.Reservados;
+    Func<DIS_Monher.Models.DetallePedido, decimal> disponible = d => d.ProductoTerminado!.StockActual - reservados.GetValueOrDefault(d.ProductoTerminadoId);
+    bool todoDisponible = Model.Detalles.All(d => disponible(d) >= d.Cantidad);
+}
+
+<div class="mb-4">
+    <h2 class="fw-bold text-dark m-0">Verificación de Disponibilidad (HU012)</h2>
+    <p class="text-muted small m-0">Verificación en tiempo real del stock de almacén para el pedido <strong class="text-primary">@Model.CodigoPedido</strong>.</p>
+</div>
+
+<div class="card-monher p-4 bg-white mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h5 class="fw-bold text-dark mb-1">Cliente: @Model.Cliente?.RazonSocial</h5>
+            <span class="text-muted small">Documento: @Model.Cliente?.Documento</span>
+        </div>
+        <span class="badge @(Model.Estado == "Confirmado" ? "badge-optimal" : "badge-info") fs-6">Estado: @Model.Estado</span>
+    </div>
+
+    <hr />
+
+    <h6 class="fw-bold text-dark mb-3">Validación de Almacén</h6>
+    <div class="table-responsive">
+        <table class="table table-monher align-middle">
+            <thead>
+                <tr>
+                    <th>Producto solicitado</th><th>Cant. solicitada</th><th>Stock físico</th><th>Reservado por otros</th><th>Disponible</th><th>Estado</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var d in Model.Detalles) {
+                    <tr>
+                        <td class="fw-bold">@d.ProductoTerminado?.Nombre</td>
+                        <td>@d.Cantidad unidades</td>
+                        <td>@d.ProductoTerminado?.StockActual</td>
+                        <td>@reservados.GetValueOrDefault(d.ProductoTerminadoId)</td>
+                        <td class="fw-bold">@disponible(d)</td>
+                        <td>
+                            @if (disponible(d) >= d.Cantidad) { <span class="badge badge-optimal"><i class="fa-solid fa-circle-check me-1"></i>Disponible</span> }
+                            else { <span class="badge badge-critical"><i class="fa-solid fa-circle-xmark me-1"></i>Falta @(d.Cantidad - disponible(d)) (requiere producción)</span> }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="d-flex justify-content-end gap-2 mt-4">
+        <a asp-action="Pedidos" class="btn btn-light text-muted px-4">Regresar</a>
+        @if (Model.Estado != "Registrado") {
+            <a asp-action="DespachoView" asp-route-id="@Model.Id" class="btn btn-monher-primary px-4">Ir al despacho</a>
+        } else if (todoDisponible) {
+            <form asp-action="ConfirmarReserva" method="post">
+                <input type="hidden" name="id" value="@Model.Id" />
+                <button type="submit" class="btn btn-monher-primary px-4"><i class="fa-solid fa-lock me-2"></i>Confirmar y reservar stock</button>
+            </form>
+        } else {
+            <a asp-controller="Production" asp-action="Index" class="btn btn-monher-primary px-4"><i class="fa-solid fa-gears me-2"></i>Crear orden de producción</a>
+        }
+    </div>
+</div>

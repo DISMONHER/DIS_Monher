@@ -1,0 +1,115 @@
+@model IEnumerable<DIS_Monher.Models.OrdenProduccion>
+@{ ViewData["Title"] = "Production Orders"; }
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold text-dark m-0">Production Orders</h2>
+        <p class="text-muted small m-0">Programación, consumo de materiales e inspecciones de calidad.</p>
+    </div>
+    <button class="btn btn-monher-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#newOrderModal">
+        <i class="fa-solid fa-plus me-2"></i> Crear Orden de Producción
+    </button>
+</div>
+
+<div class="card-monher p-4 bg-white mb-4">
+    <div class="table-responsive">
+        <table class="table table-monher align-middle">
+            <thead>
+                <tr>
+                    <th>N° Orden</th>
+                    <th>Cliente</th>
+                    <th>Caja / Producto</th>
+                    <th>Progreso</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model) {
+                    <tr>
+                        <td class="fw-bold text-primary">@item.NumeroOrden</td>
+                        <td>@item.Cliente</td>
+                        <td>@item.TipoCaja</td>
+                        <td>
+                            <div class="fw-bold">@item.CantidadProducida / @item.Cantidad</div>
+                            <div class="progress mt-1" style="height: 6px;">
+                                <div class="progress-bar bg-primary" role="progressbar" style="width: @(item.Cantidad > 0 ? (item.CantidadProducida * 100 / item.Cantidad) : 0)%"></div>
+                            </div>
+                        </td>
+                        <td>
+                            @if(item.Estado == "Terminado") {
+                                <span class="badge badge-optimal">Terminado</span>
+                            } else if (item.Estado == "En Proceso") {
+                                <span class="badge badge-warning">En Proceso</span>
+                            } else {
+                                <span class="badge badge-info">Pendiente</span>
+                            }
+                        </td>
+                        <td>
+                            @if (item.Estado is "Terminado" or "Cancelado") {
+                                <span class="text-muted small"><i class="fa-solid fa-lock me-1"></i>Orden cerrada</span>
+                            } else {
+                                <form asp-action="ActualizarAvance" method="post" class="d-flex gap-2">
+                                    <input type="hidden" name="ordenId" value="@item.Id" />
+                                    <select name="estado" class="form-select form-select-sm rounded-3">
+                                        <option value="En Proceso">En proceso</option>
+                                        <option value="Cancelado">Cancelar</option>
+                                    </select>
+                                    <input type="number" min="@item.CantidadProducida" max="@item.Cantidad" name="cantidadProducida" class="form-control form-control-sm rounded-3" value="@item.CantidadProducida" style="width:80px;" />
+                                    <button type="submit" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-rotate me-1"></i>Actualizar</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal para Crear Orden -->
+<div class="modal fade" id="newOrderModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content card-monher p-3">
+            <form asp-action="Create" method="post">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold">Crear Orden de Producción (HU006)</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-bold">Cliente</label>
+                        <input type="text" class="form-control rounded-3" name="Cliente" required placeholder="Nombre del cliente" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-bold">Producto a fabricar</label>
+                        <select class="form-select rounded-3" name="TipoCaja" required>
+                            @foreach (var p in (List<DIS_Monher.Models.ProductoTerminado>)ViewBag.Productos) {
+                                <option value="@p.Nombre">@p.Nombre</option>
+                            }
+                        </select>
+                        <small class="text-muted">Los materiales se descuentan automáticamente según la composición del producto.</small>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small fw-bold">Cantidad</label>
+                            <input type="number" class="form-control rounded-3" name="Cantidad" required placeholder="100" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small fw-bold">Fecha Entrega</label>
+                            <input type="date" class="form-control rounded-3" name="FechaEntrega" required />
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-bold">Responsable</label>
+                        <input type="text" class="form-control rounded-3" name="Responsable" required placeholder="Nombre de encargado" />
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light text-muted px-3" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-monher-primary px-4">Generar Orden</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

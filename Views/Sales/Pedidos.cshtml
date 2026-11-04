@@ -1,0 +1,145 @@
+@model IEnumerable<DIS_Monher.Models.Pedido>
+@{ ViewData["Title"] = "Pedidos y Clientes"; }
+
+<div class="mb-4">
+    <h2 class="fw-bold text-dark m-0">Gestión de Pedidos y Ventas</h2>
+    <p class="text-muted small m-0">Alta de clientes y creación de solicitudes personalizadas (HU011).</p>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Registrar Cliente -->
+    <div class="col-md-5">
+        <div class="card-monher p-4 bg-white h-100">
+            <h5 class="fw-bold text-dark mb-3"><i class="fa-solid fa-user-plus text-primary me-2"></i>Registrar Cliente</h5>
+            <form asp-action="CrearCliente" method="post">
+                <div class="mb-3">
+                    <label class="form-label text-muted small fw-bold">Documento (RUC / DNI)</label>
+                    <input type="text" class="form-control rounded-3" name="Documento" required placeholder="41882736" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-muted small fw-bold">Razón Social / Nombre</label>
+                    <input type="text" class="form-control rounded-3" name="RazonSocial" required placeholder="Gloria Paredes" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-muted small fw-bold">Contacto / Teléfono</label>
+                    <input type="text" class="form-control rounded-3" name="Contacto" placeholder="+51 987654321" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-muted small fw-bold">Dirección</label>
+                    <input type="text" class="form-control rounded-3" name="Direccion" placeholder="Av. Javier Prado 123" />
+                </div>
+                <button type="submit" class="btn btn-monher-primary w-100">Guardar Cliente</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Generar Pedido -->
+    <form asp-action="CrearPedido" method="post">
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label class="form-label text-muted small fw-bold">Cliente</label>
+                <select name="clienteId" class="form-select rounded-3" required>
+                    @foreach (var c in (List<DIS_Monher.Models.Cliente>)ViewBag.Clientes) {
+                        <option value="@c.Id">@c.RazonSocial (@c.Documento)</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label text-muted small fw-bold">Fecha de Entrega</label>
+                <input type="date" class="form-control rounded-3" name="fechaEntrega" required />
+            </div>
+        </div>
+
+        <label class="form-label text-muted small fw-bold">Productos solicitados</label>
+        <div id="lineas">
+            <div class="row g-2 mb-2 linea align-items-center">
+                <div class="col-md-6">
+                    <select name="productoIds" class="form-select rounded-3 producto">
+                        @foreach (var p in (List<DIS_Monher.Models.ProductoTerminado>)ViewBag.Productos) {
+                            <option value="@p.Id" data-precio="@p.PrecioUnitario.ToString(System.Globalization.CultureInfo.InvariantCulture)">@p.Nombre — S/ @p.PrecioUnitario.ToString("N2")</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2"><input type="number" min="1" name="cantidades" value="1" class="form-control rounded-3 cantidad" required /></div>
+                <div class="col-md-3 fw-bold subtotal text-end">S/ 0.00</div>
+                <div class="col-md-1"><button type="button" class="btn btn-sm text-danger quitar"><i class="fa-solid fa-trash"></i></button></div>
+            </div>
+        </div>
+        <button type="button" id="agregarLinea" class="btn btn-sm btn-outline-primary mb-3"><i class="fa-solid fa-plus me-1"></i>Agregar producto</button>
+
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <h4 class="fw-bold text-primary m-0">Total: <span id="totalPedido">S/ 0.00</span></h4>
+            <button type="submit" class="btn btn-monher-primary px-4"><i class="fa-solid fa-arrow-right me-2"></i>Generar y validar pedido</button>
+        </div>
+    </form>
+</div>
+
+<div class="card-monher p-4 bg-white">
+    <h5 class="fw-bold text-dark mb-3">Pedidos Registrados</h5>
+    <div class="table-responsive">
+        <table class="table table-monher align-middle">
+            <thead>
+                <tr>
+                    <th>Código Pedido</th>
+                    <th>Cliente</th>
+                    <th>Total</th>
+                    <th>Estado</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in Model) {
+                    <tr>
+                        <td class="fw-bold text-primary">@p.CodigoPedido</td>
+                        <td>@p.Cliente?.RazonSocial</td>
+                        <td class="fw-bold">S/. @p.Total.ToString("N2")</td>
+                        <td><span class="badge @(p.Estado == "Vendido" ? "badge-optimal" : p.Estado == "Registrado" ? "badge-info" : "badge-warning")">@p.Estado</span></td>
+                        <td>
+                            @switch (p.Estado) {
+                                case "Registrado":
+                                    <a asp-action="VerificarDisponibilidad" asp-route-id="@p.Id" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-magnifying-glass me-1"></i>Validar disponibilidad</a>
+                                    break;
+                                case "Confirmado":
+                                    <a asp-action="DespachoView" asp-route-id="@p.Id" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-truck-fast me-1"></i>Despachar</a>
+                                    break;
+                                case "Despachado":
+                                    <a asp-action="Facturacion" asp-route-id="@p.Id" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-file-invoice me-1"></i>Facturar</a>
+                                    break;
+                                default:
+                                    <span class="badge badge-optimal"><i class="fa-solid fa-circle-check me-1"></i>Completado</span>
+                                    break;
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    const lineas = document.getElementById('lineas');
+    const plantilla = lineas.firstElementChild.cloneNode(true);
+
+    function recalcular() {
+        let total = 0;
+        lineas.querySelectorAll('.linea').forEach(l => {
+            const precio = parseFloat(l.querySelector('.producto option:checked').dataset.precio);
+            const cant = parseInt(l.querySelector('.cantidad').value) || 0;
+            const sub = precio * cant;
+            l.querySelector('.subtotal').textContent = 'S/ ' + sub.toFixed(2);
+            total += sub;
+        });
+        document.getElementById('totalPedido').textContent = 'S/ ' + total.toFixed(2);
+    }
+    document.getElementById('agregarLinea').onclick = () => { lineas.appendChild(plantilla.cloneNode(true)); recalcular(); };
+    lineas.addEventListener('input', recalcular);
+    lineas.addEventListener('change', recalcular);
+    lineas.addEventListener('click', e => {
+        const q = e.target.closest('.quitar');
+        if (q && lineas.children.length > 1) { q.closest('.linea').remove(); recalcular(); }
+    });
+    recalcular();
+</script>
+}

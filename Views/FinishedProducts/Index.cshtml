@@ -1,0 +1,98 @@
+@model IEnumerable<DIS_Monher.Models.ProductoTerminado>
+@{ ViewData["Title"] = "Finished Products"; }
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold text-dark m-0">Finished Products</h2>
+        <p class="text-muted small m-0">Disponibilidad de catálogo y control de productos terminados para venta.</p>
+    </div>
+    <button class="btn btn-monher-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#newProductModal">
+        <i class="fa-solid fa-plus me-2"></i> Add New Product
+    </button>
+</div>
+
+<div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
+    @foreach (var item in Model) {
+        <div class="col">
+            <div class="card-monher h-100 p-3 bg-white">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="badge bg-light text-dark border">@item.Codigo</span>
+                    @if(item.StockActual > 0) {
+                        <span class="badge badge-optimal">In Stock</span>
+                    } else {
+                        <span class="badge badge-critical">Out of Stock</span>
+                    }
+                </div>
+                <h5 class="fw-bold text-dark mb-1">@item.Nombre</h5>
+                <p class="text-muted small mb-3">Tipo de Caja: @item.TipoCaja</p>
+                <div class="d-flex justify-content-between align-items-end mt-auto">
+                    <div>
+                        <small class="text-muted d-block">Disponible</small>
+                        <span class="fs-5 fw-bold text-dark">@item.StockActual units</span>
+                    </div>
+                    <span class="fs-4 fw-bold text-primary">S/. @item.PrecioUnitario.ToString("N2")</span>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Modal para Crear Producto -->
+<div class="modal fade" id="newProductModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content card-monher p-3">
+            <form asp-action="Create" method="post">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold">Nuevo Producto Terminado</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-bold">Código</label>
+                        <input type="text" class="form-control rounded-3" name="Codigo" required placeholder="PROD-001" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-bold">Nombre del Producto</label>
+                        <input type="text" class="form-control rounded-3" name="Nombre" required placeholder="Cama Doble Roble" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-bold">Tipo de Caja</label>
+                        <input type="text" class="form-control rounded-3" name="TipoCaja" required placeholder="Muebles" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-bold">Precio Unitario (S/.)</label>
+                        <input type="number" step="0.01" class="form-control rounded-3" name="PrecioUnitario" required placeholder="0.00" />
+                    </div>
+
+                    <label class="form-label text-muted small fw-bold">Composición (materiales por unidad)</label>
+                    <div id="composicion">
+                        <div class="row g-2 mb-2 fila-mat">
+                            <div class="col-7">
+                                <select name="materialIds" class="form-select rounded-3">
+                                    @foreach (var m in (List<DIS_Monher.Models.Material>)ViewBag.Materiales) {
+                                        <option value="@m.Id">@m.Nombre (@m.UnidadMedida)</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-5"><input type="number" step="0.01" min="0.01" name="cantidades" class="form-control rounded-3" placeholder="Cantidad" /></div>
+                        </div>
+                    </div>
+                    <button type="button" id="addMat" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-plus me-1"></i>Agregar material</button>
+                
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light text-muted px-3" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-monher-primary px-4">Guardar Producto</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    const comp = document.getElementById('composicion');
+    const molde = comp.firstElementChild.cloneNode(true);
+    document.getElementById('addMat').onclick = () => comp.appendChild(molde.cloneNode(true));
+</script>
+}

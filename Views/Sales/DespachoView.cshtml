@@ -1,0 +1,42 @@
+@model DIS_Monher.Models.Pedido
+@{ ViewData["Title"] = "Gestión de Despacho"; }
+
+<div class="mb-4">
+    <h2 class="fw-bold text-dark m-0">Gestión de Despacho y Entrega (HU013)</h2>
+    <p class="text-muted small m-0">Configuración de transporte y programación de salida para el pedido <strong class="text-primary">@Model.CodigoPedido</strong>.</p>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-7">
+        <div class="card-monher p-4 bg-white">
+            <h5 class="fw-bold text-dark mb-3"><i class="fa-solid fa-truck-fast text-primary me-2"></i>Asignación de Transporte</h5>
+            <form asp-action="ProgramarDespacho" method="post">
+                <input type="hidden" name="pedidoId" value="@Model.Id" />
+                <div class="mb-3">
+                    <label class="form-label text-muted small fw-bold">Dirección de Entrega</label>
+                    <input type="text" class="form-control rounded-3" value="@Model.Cliente?.Direccion" readonly />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-muted small fw-bold">Transportista / Conductor Responsable</label>
+                    <input type="text" class="form-control rounded-3" name="transportista" placeholder="Ej. Furgoneta Sprinter - Ricardo Santos" required />
+                </div>
+                <button type="submit" class="btn btn-monher-primary w-100 mt-2">
+                    <i class="fa-solid fa-box-check me-2"></i> Confirmar Salida e Iniciar Envío
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-md-5">
+        <div class="card-monher p-4 bg-white">
+            <h6 class="fw-bold text-dark mb-3">Resumen de Destino</h6>
+            <div class="p-3 bg-light rounded-3 mb-3">
+                <p class="mb-1 text-muted small"><strong>Cliente:</strong> @Model.Cliente?.RazonSocial</p>
+                <p class="mb-0 text-muted small"><strong>Contacto:</strong> @Model.Cliente?.Contacto</p>
+            </div>
+            <div class="alert alert-info border-0 rounded-3 small">
+                <i class="fa-solid fa-info-circle me-1"></i> Al procesar el despacho, el stock físico de los productos terminados se descontará de forma automática.
+            </div>
+        </div>
+    </div>
+</div>

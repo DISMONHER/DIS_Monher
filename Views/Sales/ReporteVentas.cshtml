@@ -1,0 +1,109 @@
+@model DIS_Monher.Models.ReporteVM
+@{ ViewData["Title"] = "Reportes"; }
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold m-0">Reportes del Sistema</h2>
+        <p class="text-muted small m-0">Indicadores calculados en tiempo real con la producción, el inventario y las ventas registradas (HU015).</p>
+    </div>
+    <button class="btn btn-monher-primary" onclick="window.print()"><i class="fa-solid fa-print me-2"></i>Imprimir / Guardar PDF</button>
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-md-3"><div class="card-monher kpi">
+        <i class="fa-solid fa-sack-dollar i"></i><small class="t">Ventas del mes</small>
+        <div class="v text-primary">S/ @Model.VentasMes.ToString("N2")</div>
+        @if (Model.VariacionVentas.HasValue) {
+            <small class="@(Model.VariacionVentas >= 0 ? "text-success" : "text-danger") fw-bold"><i class="fa-solid @(Model.VariacionVentas >= 0 ? "fa-arrow-up" : "fa-arrow-down") me-1"></i>@Math.Abs(Model.VariacionVentas.Value)% vs mes anterior</small>
+        } else { <small class="text-muted">Sin datos del mes anterior</small> }
+    </div></div>
+    <div class="col-md-3"><div class="card-monher kpi verde">
+        <i class="fa-solid fa-receipt i"></i><small class="t">Ticket promedio</small>
+        <div class="v">S/ @Model.TicketPromedio.ToString("N2")</div>
+        <small class="text-muted">@Model.TotalComprobantes comprobantes emitidos</small>
+    </div></div>
+    <div class="col-md-3"><div class="card-monher kpi ambar">
+        <i class="fa-solid fa-hourglass-half i"></i><small class="t">Pedidos en curso</small>
+        <div class="v">@Model.PedidosEnCurso</div>
+        <small class="text-muted">Aún sin facturar</small>
+    </div></div>
+    <div class="col-md-3"><div class="card-monher kpi @(Model.MaterialesCriticos > 0 ? "rojo" : "verde")">
+        <i class="fa-solid fa-triangle-exclamation i"></i><small class="t">Materiales críticos</small>
+        <div class="v @(Model.MaterialesCriticos > 0 ? "text-danger" : "text-success")">@Model.MaterialesCriticos</div>
+        <small class="text-muted">En o bajo el stock mínimo</small>
+    </div></div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3"><div class="card-monher kpi">
+        <small class="t">Eficiencia de producción</small>
+        <div class="v text-primary">@Model.EficienciaProduccion%</div>
+        <small class="text-muted">Producido / planificado</small>
+    </div></div>
+    <div class="col-md-3"><div class="card-monher kpi rojo">
+        <small class="t">Tasa de mermas</small>
+        <div class="v text-danger">@Model.TasaMermas%</div>
+        <small class="text-muted">Salidas con motivo "merma"</small>
+    </div></div>
+    <div class="col-md-3"><div class="card-monher kpi">
+        <small class="t">Rotación de materiales</small>
+        <div class="v">@Model.RotacionInventario x</div>
+        <small class="text-muted">Salidas / stock actual</small>
+    </div></div>
+    <div class="col-md-3"><div class="card-monher kpi verde">
+        <small class="t">Ciclo de producción</small>
+        <div class="v">@Model.CicloProduccionDias días</div>
+        <small class="text-muted">Promedio de órdenes terminadas</small>
+    </div></div>
+</div>
+
+<div class="card-monher p-4 mb-4">
+    <h5 class="fw-bold mb-3">Historial de ventas emitidas</h5>
+    <div class="table-responsive">
+        <table class="table table-monher">
+            <thead><tr><th>Comprobante</th><th>Tipo</th><th>Cliente</th><th>Fecha</th><th>Método de pago</th><th class="text-end">Total</th></tr></thead>
+            <tbody>
+            @foreach (var c in Model.Comprobantes) {
+                <tr>
+                    <td class="fw-bold text-primary">@c.NumeroComprobante</td>
+                    <td><span class="badge badge-info">@c.TipoComprobante</span></td>
+                    <td>@c.Pedido?.Cliente?.RazonSocial</td>
+                    <td class="text-muted small">@c.FechaEmision.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>@c.MetodoPago</td>
+                    <td class="fw-bold text-end">S/ @c.Total.ToString("N2")</td>
+                </tr>
+            }
+            @if (!Model.Comprobantes.Any()) { <tr><td colspan="6" class="text-center text-muted py-4">Aún no hay ventas emitidas.</td></tr> }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card-monher p-4">
+    <h5 class="fw-bold mb-3">Distribución y entregas</h5>
+    <div class="table-responsive">
+        <table class="table table-monher">
+            <thead><tr><th>Pedido</th><th>Cliente</th><th>Transportista</th><th>Despacho</th><th>Estado</th><th></th></tr></thead>
+            <tbody>
+            @foreach (var d in Model.Despachos) {
+                <tr>
+                    <td class="fw-bold text-primary">@d.Pedido?.CodigoPedido</td>
+                    <td>@d.Pedido?.Cliente?.RazonSocial</td>
+                    <td>@d.Transportista</td>
+                    <td class="text-muted small">@d.FechaDespacho.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td><span class="badge @(d.EstadoEntrega == "Entregado" ? "badge-optimal" : "badge-warning")">@d.EstadoEntrega</span></td>
+                    <td class="text-end">
+                        @if (d.EstadoEntrega != "Entregado") {
+                            <form asp-action="ConfirmarEntrega" method="post">
+                                <input type="hidden" name="despachoId" value="@d.Id" />
+                                <button class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-check me-1"></i>Confirmar entrega</button>
+                            </form>
+                        } else { <small class="text-muted">@d.FechaEntregaReal?.ToString("dd/MM/yyyy")</small> }
+                    </td>
+                </tr>
+            }
+            @if (!Model.Despachos.Any()) { <tr><td colspan="6" class="text-center text-muted py-4">Aún no hay despachos registrados.</td></tr> }
+            </tbody>
+        </table>
+    </div>
+</div>

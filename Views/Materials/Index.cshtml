@@ -1,0 +1,92 @@
+@model IEnumerable<DIS_Monher.Models.Material>
+@{ ViewData["Title"] = "Materials Registry"; }
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold text-dark m-0">Materials Registry</h2>
+        <p class="text-muted small m-0">Gestión y registro de insumos y materias primas del almacén.</p>
+    </div>
+    <button class="btn btn-monher-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#newMaterialModal">
+        <i class="fa-solid fa-plus me-2"></i> Add New Material
+    </button>
+</div>
+
+<div class="card-monher p-4 bg-white">
+    <div class="table-responsive">
+        <table class="table table-monher align-middle">
+            <thead>
+                <tr>
+                    <th>Material Info</th>
+                    <th>SKU / Código</th>
+                    <th>Categoría</th>
+                    <th>Almacén</th>
+                    <th>Stock Actual</th>
+                    <th>Stock Mínimo</th>
+                    <th>Fecha Registro</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model) {
+                    <tr>
+                        <td>
+                            <div class="fw-bold text-dark">@item.Nombre</div>
+                            <small class="text-muted">@item.Descripcion</small>
+                        </td>
+                        <td><span class="badge bg-light text-dark border px-2 py-1">@item.Codigo</span></td>
+                        <td><span class="text-primary fw-semibold">@item.Categoria</span></td>
+                        <td><span class="text-secondary">@item.Almacen</span></td>
+                        <td><strong class="text-dark">@item.StockActual</strong> <small class="text-muted">@item.UnidadMedida</small></td>
+                        <td><span class="text-danger fw-semibold">@item.StockMinimo</span></td>
+                        <td class="text-muted small">@item.FechaIngreso.ToString("MMM dd, yyyy")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Modal para Crear Material -->
+<div class="modal fade" id="newMaterialModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content card-monher p-3">
+            <form asp-action="Create" method="post">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold">Registrar Nuevo Material</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-bold">Código / SKU</label>
+                        <input type="text" class="form-control rounded-3" name="Codigo" required placeholder="CAN-001" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-bold">Nombre del Material</label>
+                        <input type="text" class="form-control rounded-3" name="Nombre" required placeholder="Ej. Nueces de Brasil" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-bold">Descripción</label>
+                        <input type="text" class="form-control rounded-3" name="Descripcion" placeholder="Especificaciones para canasta navideña" />
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small fw-bold">Categoría</label>
+                            <input type="text" class="form-control rounded-3" name="Categoria" placeholder="Alimentos" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small fw-bold">Unidad de Medida</label>
+                            <input type="text" class="form-control rounded-3" name="UnidadMedida" placeholder="kg" required />
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-bold">Stock Mínimo</label>
+                        <input type="number" step="0.01" class="form-control rounded-3" name="StockMinimo" required />
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light text-muted px-3" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-monher-primary px-4">Guardar Material</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

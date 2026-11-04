@@ -1,0 +1,89 @@
+@model IEnumerable<DIS_Monher.Models.MovimientoInventario>
+@{ ViewData["Title"] = "Inventory Control"; }
+
+<div class="mb-4">
+    <h2 class="fw-bold text-dark m-0">Inventory Control</h2>
+    <p class="text-muted small m-0">Control de stock en vivo, movimientos y alertas automáticas de compra.</p>
+</div>
+
+<!-- Alertas de Stock Mínimo (HU005) -->
+@foreach (var alerta in (List<DIS_Monher.Models.AlertaStock>)ViewBag.Alertas) {
+    <div class="alert alert-danger card-monher border-start border-danger border-4 d-flex align-items-center mb-3 shadow-sm bg-white" role="alert">
+        <i class="fa-solid fa-triangle-exclamation text-danger fa-lg me-3"></i>
+        <div class="small">
+            <strong>Alerta de Stock Crítico:</strong> El material <span class="fw-bold">@alerta.Material?.Nombre</span> registra <strong>@alerta.CantidadActual unidades</strong>. Se sugiere pedir <span class="badge bg-danger">@alerta.CantidadSugeridaCompra unidades</span>.
+        </div>
+    </div>
+}
+
+<div class="card-monher p-4 bg-white mb-4">
+    <h5 class="fw-bold text-dark mb-3"><i class="fa-solid fa-right-left text-primary me-2"></i>Registrar Movimiento de Inventario (HU002)</h5>
+    <form asp-action="RegistrarMovimiento" method="post" class="row g-3">
+        <div class="col-md-3">
+            <label class="form-label text-muted small fw-bold">Material</label>
+            <select name="materialId" class="form-select rounded-3">
+                @foreach (var m in (List<DIS_Monher.Models.Material>)ViewBag.Materiales) {
+                    <option value="@m.Id">@m.Nombre (Stock: @m.StockActual)</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label text-muted small fw-bold">Tipo Movimiento</label>
+            <select name="tipo" class="form-select rounded-3">
+                <option value="ENTRADA">ENTRADA</option>
+                <option value="SALIDA">SALIDA</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label text-muted small fw-bold">Cantidad</label>
+            <input type="number" step="0.01" name="cantidad" class="form-control rounded-3" required placeholder="0.00" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label text-muted small fw-bold">Motivo</label>
+            <input type="text" name="motivo" class="form-control rounded-3" placeholder="Compra / Merma" required />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label text-muted small fw-bold">Responsable</label>
+            <input type="text" name="responsable" class="form-control rounded-3" required placeholder="Nombre del Encargado" />
+        </div>
+        <div class="col-12 text-end mt-3">
+            <button type="submit" class="btn btn-monher-primary px-4"><i class="fa-solid fa-check me-2"></i>Procesar Movimiento</button>
+        </div>
+    </form>
+</div>
+
+<div class="card-monher p-4 bg-white">
+    <h5 class="fw-bold text-dark mb-3">Historial de Entradas y Salidas</h5>
+    <div class="table-responsive">
+        <table class="table table-monher align-middle">
+            <thead>
+                <tr>
+                    <th>Fecha / Hora</th>
+                    <th>Material</th>
+                    <th>Tipo</th>
+                    <th>Cantidad</th>
+                    <th>Motivo</th>
+                    <th>Responsable</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model) {
+                    <tr>
+                        <td class="text-muted small">@item.Fecha.ToString("yyyy-MM-dd HH:mm")</td>
+                        <td class="fw-bold text-dark">@item.Material?.Nombre</td>
+                        <td>
+                            @if(item.TipoMovimiento == "ENTRADA") {
+                                <span class="badge badge-optimal">ENTRADA</span>
+                            } else {
+                                <span class="badge badge-critical">SALIDA</span>
+                            }
+                        </td>
+                        <td><strong>@item.Cantidad</strong></td>
+                        <td>@item.Motivo</td>
+                        <td class="text-secondary">@item.Responsable</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
