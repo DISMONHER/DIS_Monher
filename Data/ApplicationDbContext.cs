@@ -17,6 +17,9 @@ public class ApplicationDbContext : IdentityDbContext
     public DbSet<OrdenProduccion> OrdenesProduccion { get; set; }
     public DbSet<DetalleOrdenMaterial> DetalleOrdenMateriales { get; set; }
     public DbSet<InspeccionCalidad> InspeccionesCalidad { get; set; }
+    public DbSet<EvidenciaCalidad> EvidenciasCalidad { get; set; }
+    public DbSet<AvanceProduccion> AvancesProduccion { get; set; }
+    public DbSet<Notificacion> Notificaciones { get; set; }
     public DbSet<Cliente> Clientes { get; set; }
     public DbSet<Pedido> Pedidos { get; set; }
     public DbSet<DetallePedido> DetallesPedido { get; set; }
