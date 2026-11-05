@@ -22,7 +22,7 @@
         <a class="nav-link @Activo("Materials", act == "ControlInventario")" href="/Materials/ControlInventario"><i class="fa-solid fa-warehouse"></i> Control de Inventario</a>
         <small class="nav-title">PRODUCCIÓN</small>
         <a class="nav-link @Activo("FinishedProducts")" href="/FinishedProducts/Index"><i class="fa-solid fa-box-archive"></i> Productos Terminados</a>
-        <a class="nav-link @Activo("Production")" href="/Production/Index"><i class="fa-solid fa-gears"></i> Órdenes de Producción</a>
+        <a class="nav-link @Activo("Production", act == "Index")"href="/Production/Index"><i class="fa-solid fa-gears"></i>Órdenes de Producción</a>
         <small class="nav-title">VENTAS</small>
 
 <a class="nav-link @Activo("Sales", act == "Pedidos" || act == "VerificarDisponibilidad" || act == "Facturacion")"
@@ -35,6 +35,13 @@
    href="/Sales/Despachos">
     <i class="fa-solid fa-truck-fast"></i>
     Despacho y Entrega
+</a>
+
+<a asp-controller="Production"
+   asp-action="ReporteCalidad"
+   class="nav-link @Activo("Production", act == "ReporteCalidad")">
+    <i class="fa-solid fa-clipboard-check"></i>
+    <span>Control de Calidad</span>
 </a>
 
 <a asp-controller="Notificaciones"
