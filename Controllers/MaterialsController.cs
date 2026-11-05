@@ -36,7 +36,7 @@ namespace DIS_Monher.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            material.FechaIngreso = DateTime.Now;
+            material.FechaIngreso = DateTime.UtcNow;
             material.StockActual = 0;
             _context.Materiales.Add(material);
             await _context.SaveChangesAsync();
@@ -70,7 +70,7 @@ namespace DIS_Monher.Controllers
             _context.MovimientosInventario.Add(new MovimientoInventario
             {
                 MaterialId = materialId, TipoMovimiento = tipo, Cantidad = cantidad,
-                Motivo = motivo, Responsable = responsable, Fecha = DateTime.Now
+                Motivo = motivo, Responsable = responsable, Fecha = DateTime.UtcNow
             });
 
             InventarioHelper.EvaluarAlerta(_context, material); // sin duplicados, y se cierra sola al reponer

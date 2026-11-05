@@ -44,6 +44,9 @@ public async Task<IActionResult> CrearCliente(Cliente cliente)
 [HttpPost]
 public async Task<IActionResult> CrearPedido(int clienteId, DateTime fechaEntrega, int[]? productoIds, int[]? cantidades)
 {
+    // Ensure the DateTime is UTC to avoid Npgsql errors with PostgreSQL timestamp with time zone
+    fechaEntrega = DateTime.SpecifyKind(fechaEntrega, DateTimeKind.Utc);
+
     if (productoIds == null || cantidades == null || productoIds.Length == 0 ||
         !await _context.Clientes.AnyAsync(c => c.Id == clienteId))
     {
@@ -143,7 +146,7 @@ public async Task<IActionResult> ProgramarDespacho(int pedidoId, string transpor
 
     foreach (var d in pedido.Detalles) d.ProductoTerminado!.StockActual -= d.Cantidad;
     pedido.Estado = "Despachado";
-    _context.Despachos.Add(new Despacho { PedidoId = pedidoId, Transportista = transportista, FechaDespacho = DateTime.Now, EstadoEntrega = "En Camino" });
+    _context.Despachos.Add(new Despacho { PedidoId = pedidoId, Transportista = transportista, FechaDespacho = DateTime.UtcNow, EstadoEntrega = "En Camino" });
 
     await _context.SaveChangesAsync();
     TempData["Ok"] = "Despacho registrado y stock descontado.";
@@ -158,7 +161,7 @@ public async Task<IActionResult> ConfirmarEntrega(int despachoId)
     if (d != null && d.EstadoEntrega != "Entregado")
     {
         d.EstadoEntrega = "Entregado";
-        d.FechaEntregaReal = DateTime.Now;
+        d.FechaEntregaReal = DateTime.UtcNow;
         await _context.SaveChangesAsync();
         TempData["Ok"] = "Entrega confirmada.";
     }
@@ -203,7 +206,7 @@ public async Task<IActionResult> EmitirComprobante(int pedidoId, string tipoComp
         IGV = Math.Round(pedido.Total - subtotal, 2),
         Total = pedido.Total,
         MetodoPago = metodoPago,
-        FechaEmision = DateTime.Now
+        FechaEmision = DateTime.UtcNow
     });
     pedido.Estado = "Vendido";
 
@@ -223,7 +226,7 @@ public async Task<IActionResult> EmitirComprobante(int pedidoId, string tipoComp
     var movs = await _context.MovimientosInventario.ToListAsync();
     var materiales = await _context.Materiales.ToListAsync();
 
-    var iniMes = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+    var iniMes = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
     var ventasMes = comprobantes.Where(c => c.FechaEmision >= iniMes).Sum(c => c.Total);
     var ventasPrev = comprobantes.Where(c => c.FechaEmision >= iniMes.AddMonths(-1) && c.FechaEmision < iniMes).Sum(c => c.Total);
 

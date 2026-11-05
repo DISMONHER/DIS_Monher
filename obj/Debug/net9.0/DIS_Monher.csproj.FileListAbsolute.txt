@@ -295,6 +295,17 @@ C:\Users\ADMIN\Desktop\Nueva carpeta (10)\DIS_Monher\obj\Debug\net9.0\DIS_Monher
 C:\Users\ADMIN\Desktop\Nueva carpeta (10)\DIS_Monher\obj\Debug\net9.0\DIS_Monher.genruntimeconfig.cache
 C:\Users\ADMIN\Desktop\Nueva carpeta (10)\DIS_Monher\obj\Debug\net9.0\ref\DIS_Monher.dll
 C:\Users\ADMIN\Desktop\Nueva carpeta (10)\DIS_Monher\obj\Debug\net9.0\compressed\d07d2fiz09-d82zk4ajde.gz
+D:\Escritorio\DIS_Monher-main\DIS_Monher-main\obj\Debug\net9.0\DIS_Monher.csproj.AssemblyReference.cache
+D:\Escritorio\DIS_Monher-main\DIS_Monher-main\obj\Debug\net9.0\rpswa.dswa.cache.json
+D:\Escritorio\DIS_Monher-main\DIS_Monher-main\obj\Debug\net9.0\DIS_Monher.GeneratedMSBuildEditorConfig.editorconfig
+D:\Escritorio\DIS_Monher-main\DIS_Monher-main\obj\Debug\net9.0\DIS_Monher.AssemblyInfoInputs.cache
+D:\Escritorio\DIS_Monher-main\DIS_Monher-main\obj\Debug\net9.0\DIS_Monher.AssemblyInfo.cs
+D:\Escritorio\DIS_Monher-main\DIS_Monher-main\obj\Debug\net9.0\DIS_Monher.csproj.CoreCompileInputs.cache
+D:\Escritorio\DIS_Monher-main\DIS_Monher-main\obj\Debug\net9.0\DIS_Monher.MvcApplicationPartsAssemblyInfo.cs
+D:\Escritorio\DIS_Monher-main\DIS_Monher-main\obj\Debug\net9.0\DIS_Monher.MvcApplicationPartsAssemblyInfo.cache
+D:\Escritorio\DIS_Monher-main\DIS_Monher-main\obj\Debug\net9.0\DIS_Monher.RazorAssemblyInfo.cache
+D:\Escritorio\DIS_Monher-main\DIS_Monher-main\obj\Debug\net9.0\DIS_Monher.RazorAssemblyInfo.cs
+D:\Escritorio\DIS_Monher-main\DIS_Monher-main\obj\Debug\net9.0\DIS_Monher.sourcelink.json
 D:\Escritorio\DIS_Monher-main\DIS_Monher-main\bin\Debug\net9.0\appsettings.Development.json
 D:\Escritorio\DIS_Monher-main\DIS_Monher-main\bin\Debug\net9.0\appsettings.json
 D:\Escritorio\DIS_Monher-main\DIS_Monher-main\bin\Debug\net9.0\DIS_Monher.staticwebassets.runtime.json
@@ -351,6 +362,8 @@ D:\Escritorio\DIS_Monher-main\DIS_Monher-main\bin\Debug\net9.0\Microsoft.Identit
 D:\Escritorio\DIS_Monher-main\DIS_Monher-main\bin\Debug\net9.0\Microsoft.SqlServer.Server.dll
 D:\Escritorio\DIS_Monher-main\DIS_Monher-main\bin\Debug\net9.0\Microsoft.Win32.SystemEvents.dll
 D:\Escritorio\DIS_Monher-main\DIS_Monher-main\bin\Debug\net9.0\Mono.TextTemplating.dll
+D:\Escritorio\DIS_Monher-main\DIS_Monher-main\bin\Debug\net9.0\Npgsql.dll
+D:\Escritorio\DIS_Monher-main\DIS_Monher-main\bin\Debug\net9.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll
 D:\Escritorio\DIS_Monher-main\DIS_Monher-main\bin\Debug\net9.0\System.ClientModel.dll
 D:\Escritorio\DIS_Monher-main\DIS_Monher-main\bin\Debug\net9.0\System.CodeDom.dll
 D:\Escritorio\DIS_Monher-main\DIS_Monher-main\bin\Debug\net9.0\System.Composition.AttributedModel.dll
@@ -443,16 +456,6 @@ D:\Escritorio\DIS_Monher-main\DIS_Monher-main\bin\Debug\net9.0\runtimes\win\lib\
 D:\Escritorio\DIS_Monher-main\DIS_Monher-main\bin\Debug\net9.0\runtimes\win\lib\net6.0\System.Runtime.Caching.dll
 D:\Escritorio\DIS_Monher-main\DIS_Monher-main\bin\Debug\net9.0\runtimes\win\lib\net6.0\System.Security.Cryptography.ProtectedData.dll
 D:\Escritorio\DIS_Monher-main\DIS_Monher-main\bin\Debug\net9.0\runtimes\win\lib\net6.0\System.Windows.Extensions.dll
-D:\Escritorio\DIS_Monher-main\DIS_Monher-main\obj\Debug\net9.0\DIS_Monher.csproj.AssemblyReference.cache
-D:\Escritorio\DIS_Monher-main\DIS_Monher-main\obj\Debug\net9.0\rpswa.dswa.cache.json
-D:\Escritorio\DIS_Monher-main\DIS_Monher-main\obj\Debug\net9.0\DIS_Monher.GeneratedMSBuildEditorConfig.editorconfig
-D:\Escritorio\DIS_Monher-main\DIS_Monher-main\obj\Debug\net9.0\DIS_Monher.AssemblyInfoInputs.cache
-D:\Escritorio\DIS_Monher-main\DIS_Monher-main\obj\Debug\net9.0\DIS_Monher.AssemblyInfo.cs
-D:\Escritorio\DIS_Monher-main\DIS_Monher-main\obj\Debug\net9.0\DIS_Monher.csproj.CoreCompileInputs.cache
-D:\Escritorio\DIS_Monher-main\DIS_Monher-main\obj\Debug\net9.0\DIS_Monher.MvcApplicationPartsAssemblyInfo.cs
-D:\Escritorio\DIS_Monher-main\DIS_Monher-main\obj\Debug\net9.0\DIS_Monher.MvcApplicationPartsAssemblyInfo.cache
-D:\Escritorio\DIS_Monher-main\DIS_Monher-main\obj\Debug\net9.0\DIS_Monher.RazorAssemblyInfo.cache
-D:\Escritorio\DIS_Monher-main\DIS_Monher-main\obj\Debug\net9.0\DIS_Monher.RazorAssemblyInfo.cs
 D:\Escritorio\DIS_Monher-main\DIS_Monher-main\obj\Debug\net9.0\rjimswa.dswa.cache.json
 D:\Escritorio\DIS_Monher-main\DIS_Monher-main\obj\Debug\net9.0\rjsmrazor.dswa.cache.json
 D:\Escritorio\DIS_Monher-main\DIS_Monher-main\obj\Debug\net9.0\rjsmcshtml.dswa.cache.json

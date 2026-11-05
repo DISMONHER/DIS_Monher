@@ -20,7 +20,7 @@ namespace DIS_Monher.Models
         public decimal StockActual { get; set; } = 0;
         public decimal StockMinimo { get; set; } = 0;
         public string Almacen { get; set; } = "Almacén Principal";
-        public DateTime FechaIngreso { get; set; } = DateTime.Now;
+        public DateTime FechaIngreso { get; set; } = DateTime.UtcNow;
         public string UsuarioResponsable { get; set; } = "Sistema";
     }
 
@@ -33,7 +33,7 @@ namespace DIS_Monher.Models
         public string TipoMovimiento { get; set; } = "ENTRADA"; // ENTRADA / SALIDA
         public decimal Cantidad { get; set; }
         public string Motivo { get; set; } = string.Empty;
-        public DateTime Fecha { get; set; } = DateTime.Now;
+        public DateTime Fecha { get; set; } = DateTime.UtcNow;
         public string Responsable { get; set; } = string.Empty;
     }
 
@@ -68,7 +68,7 @@ namespace DIS_Monher.Models
         public Material? Material { get; set; }
         public decimal CantidadActual { get; set; }
         public decimal CantidadSugeridaCompra { get; set; }
-        public DateTime FechaGeneracion { get; set; } = DateTime.Now;
+        public DateTime FechaGeneracion { get; set; } = DateTime.UtcNow;
         public bool Atendida { get; set; } = false;
     }
 
@@ -77,7 +77,7 @@ namespace DIS_Monher.Models
         [Key]
         public int Id { get; set; }
         public string NumeroOrden { get; set; } = string.Empty;
-        public DateTime FechaCreacion { get; set; } = DateTime.Now;
+        public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
         public DateTime FechaEntrega { get; set; }
         public DateTime? FechaFin { get; set; }
         public string Cliente { get; set; } = string.Empty;
@@ -106,7 +106,7 @@ namespace DIS_Monher.Models
         public OrdenProduccion? OrdenProduccion { get; set; }
         public string Lote { get; set; } = string.Empty;
         public string Inspector { get; set; } = string.Empty;
-        public DateTime Fecha { get; set; } = DateTime.Now;
+        public DateTime Fecha { get; set; } = DateTime.UtcNow;
         public bool Aprobado { get; set; }
         public string Observaciones { get; set; } = string.Empty;
     }
@@ -156,7 +156,7 @@ namespace DIS_Monher.Models
 
         public Pedido? Pedido { get; set; }
         public string Transportista { get; set; } = string.Empty;
-        public DateTime FechaDespacho { get; set; } = DateTime.Now;
+        public DateTime FechaDespacho { get; set; } = DateTime.UtcNow;
         public DateTime? FechaEntregaReal { get; set; }
         public string EstadoEntrega { get; set; } = "En Camino";
         public string EvidenciaFirma { get; set; } = string.Empty;
@@ -174,6 +174,6 @@ namespace DIS_Monher.Models
         public decimal IGV { get; set; }
         public decimal Total { get; set; }
         public string MetodoPago { get; set; } = "Transferencia";
-        public DateTime FechaEmision { get; set; } = DateTime.Now;
+        public DateTime FechaEmision { get; set; } = DateTime.UtcNow;
     }
 }

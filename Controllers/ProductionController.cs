@@ -41,6 +41,16 @@ public async Task<IActionResult> Create(OrdenProduccion orden)
         return RedirectToAction(nameof(Index));
     }
 
+    // Ensure FechaCreacion is UTC to avoid Npgsql errors
+    orden.FechaCreacion = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc);
+    // Ensure FechaEntrega is UTC to avoid Npgsql errors (comes from client form)
+    orden.FechaEntrega = DateTime.SpecifyKind(orden.FechaEntrega, DateTimeKind.Utc);
+    // Ensure FechaFin is UTC if has value
+    if (orden.FechaFin.HasValue)
+    {
+        orden.FechaFin = DateTime.SpecifyKind(orden.FechaFin.Value, DateTimeKind.Utc);
+    }
+
     // Verificar materiales según la composición (receta) del producto
     var faltantes = producto.Composicion
         .Where(c => c.Material!.StockActual < c.CantidadRequerida * orden.Cantidad)
@@ -53,7 +63,7 @@ public async Task<IActionResult> Create(OrdenProduccion orden)
 
     orden.NumeroOrden = "TEMP";
     orden.Estado = "Pendiente";
-    orden.FechaCreacion = DateTime.Now;
+    orden.FechaCreacion = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc);
     _context.OrdenesProduccion.Add(orden);
     await _context.SaveChangesAsync();
     orden.NumeroOrden = $"OP-{orden.Id:D5}";
@@ -137,7 +147,7 @@ public async Task<IActionResult> ActualizarAvance(int ordenId, string estado, in
             InventarioHelper.EvaluarAlerta(_context, mat);
         }
         orden.Estado = "Cancelado";
-        orden.FechaFin = DateTime.Now;
+        orden.FechaFin = DateTime.UtcNow;
     }
     else
     {
@@ -147,7 +157,7 @@ public async Task<IActionResult> ActualizarAvance(int ordenId, string estado, in
 
         orden.CantidadProducida = cantidadProducida;
         orden.Estado = cantidadProducida >= orden.Cantidad ? "Terminado" : "En Proceso";
-        if (orden.Estado == "Terminado") orden.FechaFin = DateTime.Now;
+        if (orden.Estado == "Terminado") orden.FechaFin = DateTime.UtcNow;
     }
 
     await _context.SaveChangesAsync();
