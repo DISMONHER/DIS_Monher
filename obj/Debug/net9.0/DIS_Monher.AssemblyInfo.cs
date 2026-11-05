@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DIS_Monher")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e9ef35eef473c20f4209ab600058aaa3e66f6c90")]
 [assembly: System.Reflection.AssemblyProductAttribute("DIS_Monher")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DIS_Monher")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

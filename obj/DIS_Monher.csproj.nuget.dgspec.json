@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Escritorio\\DIS_Monher-main\\DIS_Monher-main\\DIS_Monher.csproj": {}
+    "C:\\Users\\USUARIO\\Downloads\\Dis_proy\\DIS_Monher\\DIS_Monher.csproj": {}
   },
   "projects": {
-    "D:\\Escritorio\\DIS_Monher-main\\DIS_Monher-main\\DIS_Monher.csproj": {
+    "C:\\Users\\USUARIO\\Downloads\\Dis_proy\\DIS_Monher\\DIS_Monher.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Escritorio\\DIS_Monher-main\\DIS_Monher-main\\DIS_Monher.csproj",
+        "projectUniqueName": "C:\\Users\\USUARIO\\Downloads\\Dis_proy\\DIS_Monher\\DIS_Monher.csproj",
         "projectName": "DIS_Monher",
-        "projectPath": "D:\\Escritorio\\DIS_Monher-main\\DIS_Monher-main\\DIS_Monher.csproj",
-        "packagesPath": "C:\\Users\\Alexander\\.nuget\\packages\\",
-        "outputPath": "D:\\Escritorio\\DIS_Monher-main\\DIS_Monher-main\\obj\\",
+        "projectPath": "C:\\Users\\USUARIO\\Downloads\\Dis_proy\\DIS_Monher\\DIS_Monher.csproj",
+        "packagesPath": "C:\\Users\\USUARIO\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\USUARIO\\Downloads\\Dis_proy\\DIS_Monher\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\Alexander\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\USUARIO\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
@@ -84,7 +84,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.320/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
