@@ -1,0 +1,168 @@
+
+@model IEnumerable<DIS_Monher.Models.Despacho>
+@using DIS_Monher.Models
+
+@{
+    ViewData["Title"] = "Despacho y Entrega";
+    var pendientes = (List<Pedido>)ViewBag.PedidosPendientes;
+    var enCamino = Model.Count(d => d.EstadoEntrega == "En Camino");
+    var entregados = Model.Count(d => d.EstadoEntrega == "Entregado");
+}
+
+<div class="mb-4">
+    <h2 class="fw-bold text-dark m-0">Gestión de Despacho y Entrega</h2>
+    <p class="text-muted small m-0">
+        Programación de salidas y seguimiento de pedidos (HU013).
+    </p>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card-monher p-4 bg-white">
+            <div class="text-muted small fw-bold">Pendientes de despacho</div>
+            <h2 class="fw-bold text-primary mt-2 mb-0">@pendientes.Count</h2>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card-monher p-4 bg-white">
+            <div class="text-muted small fw-bold">En camino</div>
+            <h2 class="fw-bold text-warning mt-2 mb-0">@enCamino</h2>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card-monher p-4 bg-white">
+            <div class="text-muted small fw-bold">Entregados</div>
+            <h2 class="fw-bold text-success mt-2 mb-0">@entregados</h2>
+        </div>
+    </div>
+</div>
+
+<div class="card-monher p-4 bg-white mb-4">
+    <h5 class="fw-bold mb-3">
+        <i class="fa-solid fa-box-open text-primary me-2"></i>
+        Pedidos listos para despacho
+    </h5>
+
+    <div class="table-responsive">
+        <table class="table table-monher align-middle">
+            <thead>
+                <tr>
+                    <th>Pedido</th>
+                    <th>Cliente</th>
+                    <th>Destino</th>
+                    <th>Entrega prevista</th>
+                    <th>Importe</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var pedido in pendientes)
+                {
+                    <tr>
+                        <td class="fw-bold text-primary">@pedido.CodigoPedido</td>
+                        <td>@pedido.Cliente?.RazonSocial</td>
+                        <td>@pedido.Cliente?.Direccion</td>
+                        <td>@pedido.FechaEntrega.ToString("dd/MM/yyyy")</td>
+                        <td>S/ @pedido.Total.ToString("N2")</td>
+                        <td>
+                            <a asp-action="DespachoView"
+                               asp-route-id="@pedido.Id"
+                               class="btn btn-sm btn-monher-primary">
+                                <i class="fa-solid fa-truck me-1"></i>
+                                Programar salida
+                            </a>
+                        </td>
+                    </tr>
+                }
+
+                @if (!pendientes.Any())
+                {
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">
+                            No hay pedidos confirmados pendientes.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card-monher p-4 bg-white">
+    <h5 class="fw-bold mb-3">
+        <i class="fa-solid fa-route text-primary me-2"></i>
+        Seguimiento de entregas
+    </h5>
+
+    <div class="table-responsive">
+        <table class="table table-monher align-middle">
+            <thead>
+                <tr>
+                    <th>Pedido</th>
+                    <th>Cliente</th>
+                    <th>Transportista</th>
+                    <th>Fecha de salida</th>
+                    <th>Estado</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var despacho in Model)
+                {
+                    <tr>
+                        <td class="fw-bold text-primary">
+                            @despacho.Pedido?.CodigoPedido
+                        </td>
+                        <td>@despacho.Pedido?.Cliente?.RazonSocial</td>
+                        <td>@despacho.Transportista</td>
+                        <td>@despacho.FechaDespacho.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>
+                            <span class="badge @(despacho.EstadoEntrega == "Entregado" ? "badge-optimal" : "badge-warning")">
+                                @despacho.EstadoEntrega
+                            </span>
+                        </td>
+                        <td>
+                            @if (despacho.EstadoEntrega != "Entregado")
+                            {
+                                <form asp-action="ConfirmarEntrega"
+                                      method="post"
+                                      onsubmit="return confirm('¿Confirmar que el pedido fue entregado?');">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <input type="hidden"
+                                           name="despachoId"
+                                           value="@despacho.Id" />
+
+                                    <button class="btn btn-sm btn-outline-success"
+                                            type="submit">
+                                        <i class="fa-solid fa-check me-1"></i>
+                                        Confirmar entrega
+                                    </button>
+                                </form>
+                            }
+                            else
+                            {
+                                <span class="text-success small">
+                                    <i class="fa-solid fa-circle-check me-1"></i>
+                                    @despacho.FechaEntregaReal?.ToString("dd/MM/yyyy HH:mm")
+                                </span>
+                            }
+                        </td>
+                    </tr>
+                }
+
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">
+                            Todavía no hay despachos registrados.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

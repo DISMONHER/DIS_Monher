@@ -1,41 +1,150 @@
+
 @model DIS_Monher.Models.Pedido
-@{ ViewData["Title"] = "Gestión de Despacho"; }
+
+@{
+    ViewData["Title"] = "Programar Despacho";
+}
 
 <div class="mb-4">
-    <h2 class="fw-bold text-dark m-0">Gestión de Despacho y Entrega (HU013)</h2>
-    <p class="text-muted small m-0">Configuración de transporte y programación de salida para el pedido <strong class="text-primary">@Model.CodigoPedido</strong>.</p>
+    <h2 class="fw-bold text-dark m-0">
+        Gestión de Despacho y Entrega
+    </h2>
+    <p class="text-muted small m-0">
+        Asignación de transporte para el pedido
+        <strong class="text-primary">@Model.CodigoPedido</strong>
+        (HU013).
+    </p>
+</div>
+
+<div class="mb-3">
+    <a asp-action="Despachos" class="btn btn-sm btn-outline-primary">
+        <i class="fa-solid fa-arrow-left me-1"></i>
+        Volver a despachos
+    </a>
 </div>
 
 <div class="row g-4">
-    <div class="col-md-7">
+    <div class="col-lg-7">
         <div class="card-monher p-4 bg-white">
-            <h5 class="fw-bold text-dark mb-3"><i class="fa-solid fa-truck-fast text-primary me-2"></i>Asignación de Transporte</h5>
-            <form asp-action="ProgramarDespacho" method="post">
+            <h5 class="fw-bold text-dark mb-4">
+                <i class="fa-solid fa-truck-fast text-primary me-2"></i>
+                Asignación de transporte
+            </h5>
+
+            <form asp-action="ProgramarDespacho"
+                  method="post"
+                  onsubmit="return confirm('¿Registrar la salida y descontar el stock de este pedido?');">
+
+                @Html.AntiForgeryToken()
+
                 <input type="hidden" name="pedidoId" value="@Model.Id" />
+
                 <div class="mb-3">
-                    <label class="form-label text-muted small fw-bold">Dirección de Entrega</label>
-                    <input type="text" class="form-control rounded-3" value="@Model.Cliente?.Direccion" readonly />
+                    <label class="form-label text-muted small fw-bold">
+                        Código del pedido
+                    </label>
+                    <input class="form-control rounded-3"
+                           value="@Model.CodigoPedido"
+                           readonly />
                 </div>
+
                 <div class="mb-3">
-                    <label class="form-label text-muted small fw-bold">Transportista / Conductor Responsable</label>
-                    <input type="text" class="form-control rounded-3" name="transportista" placeholder="Ej. Furgoneta Sprinter - Ricardo Santos" required />
+                    <label class="form-label text-muted small fw-bold">
+                        Cliente
+                    </label>
+                    <input class="form-control rounded-3"
+                           value="@Model.Cliente?.RazonSocial"
+                           readonly />
                 </div>
-                <button type="submit" class="btn btn-monher-primary w-100 mt-2">
-                    <i class="fa-solid fa-box-check me-2"></i> Confirmar Salida e Iniciar Envío
+
+                <div class="mb-3">
+                    <label class="form-label text-muted small fw-bold">
+                        Dirección de entrega
+                    </label>
+                    <input class="form-control rounded-3"
+                           value="@Model.Cliente?.Direccion"
+                           readonly />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-muted small fw-bold">
+                        Fecha de entrega solicitada
+                    </label>
+                    <input class="form-control rounded-3"
+                           value="@Model.FechaEntrega.ToString("dd/MM/yyyy")"
+                           readonly />
+                </div>
+
+                <div class="mb-3">
+                    <label for="transportista"
+                           class="form-label text-muted small fw-bold">
+                        Transportista / conductor responsable
+                    </label>
+                    <input id="transportista"
+                           name="transportista"
+                           maxlength="150"
+                           class="form-control rounded-3"
+                           placeholder="Ej. Ricardo Santos - Furgoneta Sprinter"
+                           required />
+                </div>
+
+                <div class="alert alert-info border-0 rounded-3 small">
+                    <i class="fa-solid fa-circle-info me-2"></i>
+                    Al confirmar la salida se descontará el stock de
+                    productos terminados y el pedido pasará a estado Despachado.
+                </div>
+
+                <button type="submit"
+                        class="btn btn-monher-primary w-100">
+                    <i class="fa-solid fa-truck-fast me-2"></i>
+                    Confirmar salida e iniciar envío
                 </button>
             </form>
         </div>
     </div>
 
-    <div class="col-md-5">
-        <div class="card-monher p-4 bg-white">
-            <h6 class="fw-bold text-dark mb-3">Resumen de Destino</h6>
+    <div class="col-lg-5">
+        <div class="card-monher p-4 bg-white mb-4">
+            <h5 class="fw-bold text-dark mb-3">
+                <i class="fa-solid fa-location-dot text-primary me-2"></i>
+                Resumen de destino
+            </h5>
+
             <div class="p-3 bg-light rounded-3 mb-3">
-                <p class="mb-1 text-muted small"><strong>Cliente:</strong> @Model.Cliente?.RazonSocial</p>
-                <p class="mb-0 text-muted small"><strong>Contacto:</strong> @Model.Cliente?.Contacto</p>
+                <div class="small text-muted mb-1">Destinatario</div>
+                <div class="fw-bold">@Model.Cliente?.RazonSocial</div>
+
+                <div class="small text-muted mt-3 mb-1">Contacto</div>
+                <div>@Model.Cliente?.Contacto</div>
+
+                <div class="small text-muted mt-3 mb-1">Dirección</div>
+                <div>@Model.Cliente?.Direccion</div>
             </div>
-            <div class="alert alert-info border-0 rounded-3 small">
-                <i class="fa-solid fa-info-circle me-1"></i> Al procesar el despacho, el stock físico de los productos terminados se descontará de forma automática.
+
+            <div class="d-flex justify-content-between">
+                <span class="text-muted">Total del pedido</span>
+                <strong class="text-primary">
+                    S/ @Model.Total.ToString("N2")
+                </strong>
+            </div>
+        </div>
+
+        <div class="card-monher p-4 bg-white">
+            <h6 class="fw-bold mb-3">Flujo de distribución</h6>
+
+            <div class="small mb-3">
+                <i class="fa-solid fa-circle-check text-success me-2"></i>
+                Pedido confirmado
+            </div>
+
+            <div class="small mb-3">
+                <i class="fa-solid fa-circle text-primary me-2"></i>
+                Salida y envío
+            </div>
+
+            <div class="small text-muted">
+                <i class="fa-regular fa-circle me-2"></i>
+                Entrega al cliente
             </div>
         </div>
     </div>

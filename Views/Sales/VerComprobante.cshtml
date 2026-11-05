@@ -1,0 +1,218 @@
+
+@model DIS_Monher.Models.ComprobanteVenta
+
+@{
+    ViewData["Title"] = "Comprobante Generado";
+    var pedido = Model.Pedido;
+}
+
+<style>
+    .comprobante-contenedor {
+        max-width: 950px;
+        margin: 0 auto;
+    }
+
+    .comprobante-hoja {
+        background: white;
+        border-radius: 16px;
+        padding: 45px;
+        box-shadow: 0 5px 20px rgba(0,0,0,.08);
+    }
+
+    .comprobante-empresa {
+        color: #1269ff;
+        font-weight: 800;
+    }
+
+    .comprobante-numero {
+        color: #1269ff;
+        font-weight: 700;
+    }
+
+    .comprobante-total {
+        color: #1269ff;
+        font-size: 27px;
+        font-weight: 800;
+    }
+
+    @@media print {
+        body {
+            background: white !important;
+        }
+
+        aside, nav, header, footer,
+        .sidebar, .no-print {
+            display: none !important;
+        }
+
+        main, .content, .container-fluid {
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+
+        .comprobante-hoja {
+            box-shadow: none !important;
+            border-radius: 0;
+            padding: 15px;
+        }
+    }
+</style>
+
+<div class="comprobante-contenedor">
+
+    <div class="d-flex justify-content-between align-items-center mb-4 no-print">
+        <div>
+            <h2 class="fw-bold m-0">Comprobante Generado</h2>
+            <p class="text-muted small">
+                Registro de venta completado correctamente.
+            </p>
+        </div>
+
+        <span class="badge bg-success px-3 py-2">
+            <i class="fa-solid fa-check-circle me-1"></i>
+            Registrado
+        </span>
+    </div>
+
+    <div class="comprobante-hoja">
+
+        <div class="d-flex justify-content-between align-items-start mb-4">
+            <div>
+                <h2 class="comprobante-empresa mb-1">
+                    MONHER E.I.R.L.
+                </h2>
+                <div class="text-muted small">
+                    RUC: 20000234567
+                </div>
+                <div class="text-muted small">
+                    Av. Javier Prado 1230, San Borja
+                </div>
+            </div>
+
+            <div class="text-end">
+                <span class="badge bg-primary px-3 py-2">
+                    @(Model.TipoComprobante == "Factura"
+                        ? "FACTURA"
+                        : "BOLETA DE VENTA")
+                </span>
+
+                <h5 class="comprobante-numero mt-3">
+                    @Model.NumeroComprobante
+                </h5>
+
+                <small class="text-muted">
+                    @Model.FechaEmision.ToString("dd/MM/yyyy HH:mm")
+                </small>
+            </div>
+        </div>
+
+        <hr />
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <small class="text-muted">Cliente</small>
+                <div class="fw-bold">
+                    @pedido?.Cliente?.RazonSocial
+                </div>
+
+                <small class="text-muted">Documento</small>
+                <div>@pedido?.Cliente?.Documento</div>
+            </div>
+
+            <div class="col-md-6 text-md-end">
+                <small class="text-muted">Pedido</small>
+                <div class="fw-bold text-primary">
+                    @pedido?.CodigoPedido
+                </div>
+
+                <small class="text-muted">Método de pago</small>
+                <div>@Model.MetodoPago</div>
+            </div>
+        </div>
+
+        <h6 class="fw-bold mb-3">Detalle de productos</h6>
+
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Producto</th>
+                        <th class="text-center">Cantidad</th>
+                        <th class="text-end">Precio unitario</th>
+                        <th class="text-end">Importe</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @if (pedido?.Detalles != null)
+                    {
+                        @foreach (var d in pedido.Detalles)
+                        {
+                            <tr>
+                                <td>@d.ProductoTerminado?.Nombre</td>
+                                <td class="text-center">@d.Cantidad</td>
+                                <td class="text-end">
+                                    S/ @d.Precio.ToString("N2")
+                                </td>
+                                <td class="text-end fw-bold">
+                                    S/ @((d.Cantidad * d.Precio).ToString("N2"))
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <hr />
+
+        <div class="row justify-content-end">
+            <div class="col-md-5">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Subtotal</span>
+                    <strong>S/ @Model.Subtotal.ToString("N2")</strong>
+                </div>
+
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">IGV (18%)</span>
+                    <strong>S/ @Model.IGV.ToString("N2")</strong>
+                </div>
+
+                <hr />
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <strong>TOTAL</strong>
+                    <span class="comprobante-total">
+                        S/ @Model.Total.ToString("N2")
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-5 text-muted small">
+            <hr />
+            Comprobante generado por el sistema MONHER.
+            <div>
+                Documento interno sin validación electrónica ante SUNAT.
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-end gap-2 mt-4 no-print">
+        <a asp-action="ReporteVentas"
+           class="btn btn-outline-primary">
+            <i class="fa-solid fa-chart-pie me-2"></i>
+            Ver reportes
+        </a>
+
+        <button type="button"
+                onclick="window.print()"
+                class="btn btn-monher-primary">
+            <i class="fa-solid fa-print me-2"></i>
+            Imprimir / Guardar PDF
+        </button>
+    </div>
+
+</div>

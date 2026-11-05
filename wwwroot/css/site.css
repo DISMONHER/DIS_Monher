@@ -374,3 +374,25 @@ h2.fw-bold {
     padding: 20px 14px;
   }
 }
+
+.table td, .table th {
+    vertical-align: middle;
+}
+
+.card {
+    border-radius: 14px;
+}
+
+.progress {
+    border-radius: 10px;
+    background-color: #e9ecef;
+}
+
+.progress-bar {
+    border-radius: 10px;
+}
+
+.badge {
+    font-size: 0.85rem;
+    padding: 0.55em 0.9em;
+}

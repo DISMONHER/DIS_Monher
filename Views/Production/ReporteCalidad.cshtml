@@ -1,0 +1,390 @@
+@model IEnumerable<DIS_Monher.Models.InspeccionCalidad>
+
+@{
+    ViewData["Title"] = "Reporte de Calidad";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+        <h2 class="fw-bold text-dark m-0">
+            Reporte de Control de Calidad
+        </h2>
+
+        <p class="text-muted small m-0">
+            Consulta las inspecciones realizadas por período.
+        </p>
+    </div>
+
+    <a asp-controller="Production"
+       asp-action="Index"
+       class="btn btn-outline-secondary">
+
+        <i class="fa-solid fa-arrow-left me-2"></i>
+        Volver a Producción
+
+    </a>
+
+</div>
+
+
+<!-- FILTRO POR PERÍODO -->
+<div class="card border-0 shadow-sm mb-4">
+
+    <div class="card-body p-4">
+
+        <h6 class="fw-bold mb-3">
+            Filtrar por período
+        </h6>
+
+        <form asp-action="ReporteCalidad"
+              method="get">
+
+            <div class="row g-3 align-items-end">
+
+                <div class="col-md-4">
+
+                    <label class="form-label fw-semibold">
+                        Desde
+                    </label>
+
+                    <input type="date"
+                           name="desde"
+                           value="@ViewBag.Desde"
+                           class="form-control rounded-3" />
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <label class="form-label fw-semibold">
+                        Hasta
+                    </label>
+
+                    <input type="date"
+                           name="hasta"
+                           value="@ViewBag.Hasta"
+                           class="form-control rounded-3" />
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <button type="submit"
+                            class="btn btn-monher-primary me-2">
+
+                        <i class="fa-solid fa-filter me-2"></i>
+                        Generar reporte
+
+                    </button>
+
+                    <a asp-action="ReporteCalidad"
+                       class="btn btn-outline-secondary">
+
+                        Limpiar
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- RESUMEN DEL REPORTE -->
+<div class="row g-3 mb-4">
+
+    <div class="col-md-3">
+
+        <div class="card border-0 shadow-sm h-100">
+
+            <div class="card-body">
+
+                <small class="text-muted">
+                    Total inspecciones
+                </small>
+
+                <h3 class="fw-bold mt-2 mb-0">
+                    @ViewBag.Total
+                </h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-md-3">
+
+        <div class="card border-0 shadow-sm h-100">
+
+            <div class="card-body">
+
+                <small class="text-muted">
+                    Aprobadas
+                </small>
+
+                <h3 class="fw-bold text-success mt-2 mb-0">
+                    @ViewBag.Aprobadas
+                </h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-md-3">
+
+        <div class="card border-0 shadow-sm h-100">
+
+            <div class="card-body">
+
+                <small class="text-muted">
+                    Rechazadas
+                </small>
+
+                <h3 class="fw-bold text-danger mt-2 mb-0">
+                    @ViewBag.Rechazadas
+                </h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-md-3">
+
+        <div class="card border-0 shadow-sm h-100">
+
+            <div class="card-body">
+
+                <small class="text-muted">
+                    % Aprobación
+                </small>
+
+                <h3 class="fw-bold text-primary mt-2 mb-0">
+                    @ViewBag.PorcentajeAprobacion%
+                </h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- TABLA DEL REPORTE -->
+<div class="card border-0 shadow-sm">
+
+    <div class="card-body p-4">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+
+            <div>
+
+                <h6 class="fw-bold mb-1">
+                    Inspecciones registradas
+                </h6>
+
+                <p class="text-muted small mb-0">
+                    Resultado de los controles de calidad realizados.
+                </p>
+
+            </div>
+
+            <div class="d-flex gap-2">
+
+            <!-- DESCARGAR PDF -->
+            <a asp-controller="Production"
+            asp-action="GenerarReporteCalidadPdf"
+            asp-route-desde="@ViewBag.Desde"
+            asp-route-hasta="@ViewBag.Hasta"
+            asp-route-descargar="true"
+            class="btn btn-monher-primary">
+
+                <i class="fa-solid fa-file-pdf me-2"></i>
+                Generar PDF
+
+            </a>
+
+
+            <!-- IMPRIMIR EL MISMO PDF -->
+            <a asp-controller="Production"
+            asp-action="GenerarReporteCalidadPdf"
+            asp-route-desde="@ViewBag.Desde"
+            asp-route-hasta="@ViewBag.Hasta"
+            asp-route-descargar="false"
+            target="_blank"
+            class="btn btn-outline-primary">
+
+                <i class="fa-solid fa-print me-2"></i>
+                Imprimir reporte
+
+            </a>
+
+        </div>
+
+        </div>
+
+        @if (Model != null && Model.Any())
+        {
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle">
+
+                    <thead class="table-light">
+
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Orden</th>
+                            <th>Lote</th>
+                            <th>Inspector</th>
+                            <th>Resultado</th>
+                            <th>Observaciones</th>
+                            <th>Evidencias</th>
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        @foreach (var inspeccion in Model)
+                        {
+                            <tr>
+
+                                <td class="text-nowrap">
+                                    @inspeccion.Fecha.ToString("dd/MM/yyyy HH:mm")
+                                </td>
+
+
+                                <td class="fw-semibold">
+
+                                    @(inspeccion.OrdenProduccion?.NumeroOrden
+                                        ?? $"Orden #{inspeccion.OrdenProduccionId}")
+
+                                </td>
+
+
+                                <td>
+                                    @inspeccion.Lote
+                                </td>
+
+
+                                <td>
+                                    @inspeccion.Inspector
+                                </td>
+
+
+                                <td>
+
+                                    @if (inspeccion.Aprobado)
+                                    {
+                                        <span class="badge bg-success rounded-pill">
+
+                                            <i class="fa-solid fa-check me-1"></i>
+                                            Aprobado
+
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger rounded-pill">
+
+                                            <i class="fa-solid fa-xmark me-1"></i>
+                                            Rechazado
+
+                                        </span>
+                                    }
+
+                                </td>
+
+
+                                <td style="min-width:220px;">
+
+                                    @(string.IsNullOrWhiteSpace(inspeccion.Observaciones)
+                                        ? "-"
+                                        : inspeccion.Observaciones)
+
+                                </td>
+
+
+                                <td>
+
+                                    @if (inspeccion.Evidencias != null &&
+                                         inspeccion.Evidencias.Any())
+                                    {
+                                        <div class="d-flex gap-2 flex-wrap">
+
+                                            @foreach (var evidencia in inspeccion.Evidencias)
+                                            {
+                                                <a href="@evidencia.RutaArchivo"
+                                                   target="_blank"
+                                                   title="Ver evidencia">
+
+                                                    <img src="@evidencia.RutaArchivo"
+                                                         alt="Evidencia de calidad"
+                                                         style="
+                                                            width:55px;
+                                                            height:55px;
+                                                            object-fit:cover;
+                                                            border-radius:8px;
+                                                            border:1px solid #ddd;" />
+
+                                                </a>
+                                            }
+
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">
+                                            Sin evidencia
+                                        </span>
+                                    }
+
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+
+                <i class="fa-solid fa-clipboard-check fs-1 text-muted mb-3"></i>
+
+                <h6 class="fw-bold">
+                    No se encontraron inspecciones
+                </h6>
+
+                <p class="text-muted mb-0">
+                    No existen controles de calidad para el período seleccionado.
+                </p>
+
+            </div>
+        }
+
+    </div>
+
+</div>
