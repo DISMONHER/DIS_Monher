@@ -1,151 +1,584 @@
-
 @model DIS_Monher.Models.Pedido
 
 @{
-    ViewData["Title"] = "Programar Despacho";
+    ViewData["Title"] = "Despacho y Entrega";
 }
 
-<div class="mb-4">
-    <h2 class="fw-bold text-dark m-0">
-        Gestión de Despacho y Entrega
-    </h2>
-    <p class="text-muted small m-0">
-        Asignación de transporte para el pedido
-        <strong class="text-primary">@Model.CodigoPedido</strong>
-        (HU013).
-    </p>
+<style>
+
+    .despacho-stepper {
+        background: #fff;
+        border-radius: 16px;
+        padding: 22px 30px;
+        box-shadow: 0 3px 15px rgba(0,0,0,.05);
+    }
+
+    .despacho-steps {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+        max-width: 700px;
+        margin: auto;
+    }
+
+    .despacho-steps::before {
+        content: "";
+        position: absolute;
+        top: 18px;
+        left: 10%;
+        right: 10%;
+        height: 3px;
+        background: #e4e9f2;
+        z-index: 0;
+    }
+
+    .despacho-step {
+        text-align: center;
+        position: relative;
+        z-index: 1;
+        min-width: 130px;
+    }
+
+    .despacho-circle {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        margin: auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        background: #edf1f7;
+        color: #8793a5;
+        border: 3px solid white;
+    }
+
+    .despacho-step.completed .despacho-circle {
+        background: #16a34a;
+        color: white;
+    }
+
+    .despacho-step.active .despacho-circle {
+        background: #377dff;
+        color: white;
+    }
+
+    .despacho-label {
+        display: block;
+        margin-top: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #64748b;
+    }
+
+    .despacho-step.active .despacho-label {
+        color: #2563eb;
+    }
+
+    .despacho-card {
+        background: #fff;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 3px 15px rgba(0,0,0,.05);
+    }
+
+    .resumen-box {
+        background: #f8fafc;
+        border: 1px solid #edf0f5;
+        border-radius: 12px;
+        padding: 18px;
+    }
+
+    .dato-label {
+        color: #64748b;
+        font-size: 13px;
+        margin-bottom: 3px;
+    }
+
+    .estado-confirmado {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #dcfce7;
+        color: #15803d;
+        border-radius: 20px;
+        padding: 7px 13px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .despacho-info {
+        background: #eef8ff;
+        border: 1px solid #d9ecf9;
+        color: #17647c;
+        border-radius: 12px;
+        padding: 15px 17px;
+    }
+
+</style>
+
+
+<!-- ======================================================
+     ENCABEZADO
+     ====================================================== -->
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+
+    <div>
+
+        <h2 class="fw-bold text-dark mb-1">
+            Gestión de Despacho y Entrega
+        </h2>
+
+        <p class="text-muted mb-0">
+            Gestiona la salida y entrega del pedido
+            <strong class="text-primary">
+                @Model.CodigoPedido
+            </strong>.
+        </p>
+
+    </div>
+
+    <span class="estado-confirmado">
+
+        <i class="fa-solid fa-circle-check"></i>
+
+        Pedido confirmado
+
+    </span>
+
 </div>
+
+
+<!-- ======================================================
+     FLUJO DE DISTRIBUCIÓN
+     ====================================================== -->
+
+<div class="despacho-stepper mb-4">
+
+    <div class="despacho-steps">
+
+        <!-- PASO 1 -->
+        <div class="despacho-step completed">
+
+            <div class="despacho-circle">
+                <i class="fa-solid fa-check"></i>
+            </div>
+
+            <span class="despacho-label">
+                Pedido confirmado
+            </span>
+
+        </div>
+
+
+        <!-- PASO 2 -->
+        <div class="despacho-step active">
+
+            <div class="despacho-circle">
+                2
+            </div>
+
+            <span class="despacho-label">
+                Salida y envío
+            </span>
+
+        </div>
+
+
+        <!-- PASO 3 -->
+        <div class="despacho-step">
+
+            <div class="despacho-circle">
+                3
+            </div>
+
+            <span class="despacho-label">
+                Entrega al cliente
+            </span>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ======================================================
+     VOLVER
+     ====================================================== -->
 
 <div class="mb-3">
-    <a asp-action="Despachos" class="btn btn-sm btn-outline-primary">
+
+    <a asp-action="Despachos"
+       class="btn btn-sm btn-outline-primary">
+
         <i class="fa-solid fa-arrow-left me-1"></i>
+
         Volver a despachos
+
     </a>
+
 </div>
 
+
+<!-- ======================================================
+     CONTENIDO
+     ====================================================== -->
+
 <div class="row g-4">
+
+
+    <!-- ==================================================
+         ASIGNACIÓN DE TRANSPORTE
+         ================================================== -->
+
     <div class="col-lg-7">
-        <div class="card-monher p-4 bg-white">
-            <h5 class="fw-bold text-dark mb-4">
-                <i class="fa-solid fa-truck-fast text-primary me-2"></i>
-                Asignación de transporte
-            </h5>
+
+        <div class="despacho-card">
+
+            <div class="mb-4">
+
+                <h5 class="fw-bold text-dark mb-1">
+
+                    <i class="fa-solid fa-truck-fast text-primary me-2"></i>
+
+                    Asignación de transporte
+
+                </h5>
+
+                <p class="text-muted small mb-0">
+                    Registra al responsable encargado del traslado del pedido.
+                </p>
+
+            </div>
+
 
             <form asp-action="ProgramarDespacho"
                   method="post"
-                  onsubmit="return confirm('¿Registrar la salida y descontar el stock de este pedido?');">
+                  onsubmit="return confirm('¿Confirmar la salida de este pedido y descontar el stock reservado?');">
 
                 @Html.AntiForgeryToken()
 
-                <input type="hidden" name="pedidoId" value="@Model.Id" />
+                <input type="hidden"
+                       name="pedidoId"
+                       value="@Model.Id" />
 
+
+                <!-- CÓDIGO -->
                 <div class="mb-3">
+
                     <label class="form-label text-muted small fw-bold">
                         Código del pedido
                     </label>
-                    <input class="form-control rounded-3"
-                           value="@Model.CodigoPedido"
-                           readonly />
+
+                    <div class="input-group">
+
+                        <span class="input-group-text bg-light">
+                            <i class="fa-solid fa-barcode text-primary"></i>
+                        </span>
+
+                        <input class="form-control"
+                               value="@Model.CodigoPedido"
+                               readonly />
+
+                    </div>
+
                 </div>
 
+
+                <!-- CLIENTE -->
                 <div class="mb-3">
+
                     <label class="form-label text-muted small fw-bold">
                         Cliente
                     </label>
-                    <input class="form-control rounded-3"
-                           value="@Model.Cliente?.RazonSocial"
-                           readonly />
+
+                    <div class="input-group">
+
+                        <span class="input-group-text bg-light">
+                            <i class="fa-solid fa-user text-primary"></i>
+                        </span>
+
+                        <input class="form-control"
+                               value="@Model.Cliente?.RazonSocial"
+                               readonly />
+
+                    </div>
+
                 </div>
 
+
+                <!-- DIRECCIÓN -->
                 <div class="mb-3">
+
                     <label class="form-label text-muted small fw-bold">
                         Dirección de entrega
                     </label>
-                    <input class="form-control rounded-3"
-                           value="@Model.Cliente?.Direccion"
-                           readonly />
+
+                    <div class="input-group">
+
+                        <span class="input-group-text bg-light">
+                            <i class="fa-solid fa-location-dot text-primary"></i>
+                        </span>
+
+                        <input class="form-control"
+                               value="@Model.Cliente?.Direccion"
+                               readonly />
+
+                    </div>
+
                 </div>
 
+
+                <!-- FECHA -->
                 <div class="mb-3">
+
                     <label class="form-label text-muted small fw-bold">
                         Fecha de entrega solicitada
                     </label>
-                    <input class="form-control rounded-3"
-                           value="@Model.FechaEntrega.ToString("dd/MM/yyyy")"
-                           readonly />
+
+                    <div class="input-group">
+
+                        <span class="input-group-text bg-light">
+                            <i class="fa-solid fa-calendar-days text-primary"></i>
+                        </span>
+
+                        <input class="form-control"
+                               value="@Model.FechaEntrega.ToString("dd/MM/yyyy")"
+                               readonly />
+
+                    </div>
+
                 </div>
 
-                <div class="mb-3">
+
+                <!-- TRANSPORTISTA -->
+                <div class="mb-4">
+
                     <label for="transportista"
                            class="form-label text-muted small fw-bold">
+
                         Transportista / conductor responsable
+
                     </label>
-                    <input id="transportista"
-                           name="transportista"
-                           maxlength="150"
-                           class="form-control rounded-3"
-                           placeholder="Ej. Ricardo Santos - Furgoneta Sprinter"
-                           required />
+
+                    <div class="input-group">
+
+                        <span class="input-group-text bg-light">
+                            <i class="fa-solid fa-id-card text-primary"></i>
+                        </span>
+
+                        <input id="transportista"
+                               name="transportista"
+                               maxlength="150"
+                               class="form-control"
+                               placeholder="Ej. Ricardo Santos - Furgoneta Sprinter"
+                               required />
+
+                    </div>
+
+                    <small class="text-muted">
+                        Ingresa el nombre del responsable y, si corresponde,
+                        el vehículo asignado.
+                    </small>
+
                 </div>
 
-                <div class="alert alert-info border-0 rounded-3 small">
-                    <i class="fa-solid fa-circle-info me-2"></i>
-                    Al confirmar la salida se descontará el stock de
-                    productos terminados y el pedido pasará a estado Despachado.
+
+                <!-- AVISO -->
+                <div class="despacho-info mb-4">
+
+                    <div class="d-flex gap-2 align-items-start">
+
+                        <i class="fa-solid fa-circle-info mt-1"></i>
+
+                        <div>
+
+                            <strong>
+                                Confirmación de salida
+                            </strong>
+
+                            <div class="small mt-1">
+                                Al confirmar el envío, el stock físico de los
+                                productos será descontado y el pedido cambiará
+                                al estado <strong>Despachado</strong>.
+                            </div>
+
+                        </div>
+
+                    </div>
+
                 </div>
 
+
+                <!-- BOTÓN -->
                 <button type="submit"
-                        class="btn btn-monher-primary w-100">
+                        class="btn btn-monher-primary w-100 py-2">
+
                     <i class="fa-solid fa-truck-fast me-2"></i>
+
                     Confirmar salida e iniciar envío
+
                 </button>
+
             </form>
+
         </div>
+
     </div>
+
+
+    <!-- ==================================================
+         RESUMEN
+         ================================================== -->
 
     <div class="col-lg-5">
-        <div class="card-monher p-4 bg-white mb-4">
-            <h5 class="fw-bold text-dark mb-3">
+
+
+        <!-- DESTINO -->
+        <div class="despacho-card mb-4">
+
+            <h5 class="fw-bold text-dark mb-4">
+
                 <i class="fa-solid fa-location-dot text-primary me-2"></i>
+
                 Resumen de destino
+
             </h5>
 
-            <div class="p-3 bg-light rounded-3 mb-3">
-                <div class="small text-muted mb-1">Destinatario</div>
-                <div class="fw-bold">@Model.Cliente?.RazonSocial</div>
 
-                <div class="small text-muted mt-3 mb-1">Contacto</div>
-                <div>@Model.Cliente?.Contacto</div>
+            <div class="resumen-box mb-4">
 
-                <div class="small text-muted mt-3 mb-1">Dirección</div>
-                <div>@Model.Cliente?.Direccion</div>
+
+                <!-- DESTINATARIO -->
+                <div class="mb-3">
+
+                    <div class="dato-label">
+                        Destinatario
+                    </div>
+
+                    <div class="fw-bold">
+                        @Model.Cliente?.RazonSocial
+                    </div>
+
+                </div>
+
+
+                <!-- CONTACTO -->
+                <div class="mb-3">
+
+                    <div class="dato-label">
+                        Contacto
+                    </div>
+
+                    <div>
+                        @(string.IsNullOrWhiteSpace(Model.Cliente?.Contacto)
+                            ? "No registrado"
+                            : Model.Cliente.Contacto)
+                    </div>
+
+                </div>
+
+
+                <!-- DIRECCIÓN -->
+                <div>
+
+                    <div class="dato-label">
+                        Dirección
+                    </div>
+
+                    <div class="fw-semibold">
+                        @(string.IsNullOrWhiteSpace(Model.Cliente?.Direccion)
+                            ? "No registrada"
+                            : Model.Cliente.Direccion)
+                    </div>
+
+                </div>
+
             </div>
 
-            <div class="d-flex justify-content-between">
-                <span class="text-muted">Total del pedido</span>
-                <strong class="text-primary">
+
+            <!-- TOTAL -->
+            <div class="d-flex justify-content-between align-items-center">
+
+                <span class="text-muted">
+                    Total del pedido
+                </span>
+
+                <strong class="text-primary fs-5">
                     S/ @Model.Total.ToString("N2")
                 </strong>
+
             </div>
+
         </div>
 
-        <div class="card-monher p-4 bg-white">
-            <h6 class="fw-bold mb-3">Flujo de distribución</h6>
 
-            <div class="small mb-3">
-                <i class="fa-solid fa-circle-check text-success me-2"></i>
-                Pedido confirmado
+        <!-- INFORMACIÓN DEL ENVÍO -->
+        <div class="despacho-card">
+
+            <h6 class="fw-bold text-dark mb-3">
+
+                <i class="fa-solid fa-box text-primary me-2"></i>
+
+                Estado del pedido
+
+            </h6>
+
+
+            <div class="d-flex align-items-center gap-3 mb-3">
+
+                <div class="rounded-circle bg-success-subtle text-success
+                            d-flex align-items-center justify-content-center"
+                     style="width:36px;height:36px;">
+
+                    <i class="fa-solid fa-check"></i>
+
+                </div>
+
+                <div>
+
+                    <div class="fw-semibold">
+                        Stock confirmado
+                    </div>
+
+                    <small class="text-muted">
+                        Los productos se encuentran reservados.
+                    </small>
+
+                </div>
+
             </div>
 
-            <div class="small mb-3">
-                <i class="fa-solid fa-circle text-primary me-2"></i>
-                Salida y envío
+
+            <div class="d-flex align-items-center gap-3">
+
+                <div class="rounded-circle bg-primary-subtle text-primary
+                            d-flex align-items-center justify-content-center"
+                     style="width:36px;height:36px;">
+
+                    <i class="fa-solid fa-truck"></i>
+
+                </div>
+
+                <div>
+
+                    <div class="fw-semibold">
+                        Pendiente de despacho
+                    </div>
+
+                    <small class="text-muted">
+                        Asigna el transporte para iniciar el envío.
+                    </small>
+
+                </div>
+
             </div>
 
-            <div class="small text-muted">
-                <i class="fa-regular fa-circle me-2"></i>
-                Entrega al cliente
-            </div>
         </div>
+
     </div>
+
 </div>

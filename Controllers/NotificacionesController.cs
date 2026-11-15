@@ -13,13 +13,23 @@ namespace DIS_Monher.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? area)
         {
-            var notificaciones = await _context.Notificaciones
+            var query = _context.Notificaciones
                 .Include(n => n.OrdenProduccion)
-                .Where(n => n.Area == "Distribución")
+                .Include(n => n.Pedido)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(area))
+            {
+                query = query.Where(n => n.Area == area);
+            }
+
+            var notificaciones = await query
                 .OrderByDescending(n => n.Fecha)
                 .ToListAsync();
+
+            ViewBag.Area = area;
 
             return View(notificaciones);
         }

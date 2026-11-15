@@ -71,27 +71,127 @@ public async Task<IActionResult> CrearPedido(int clienteId, DateTime fechaEntreg
     pedido.CodigoPedido = $"PED-{pedido.Id:D5}";
     await _context.SaveChangesAsync();
 
-    return RedirectToAction(nameof(VerificarDisponibilidad), new { id = pedido.Id });
+    // HU012: notificar a Producción si el pedido
+    // necesita fabricar productos adicionales
+    await NotificarProduccionSiHayFaltantes(pedido.Id);
+
+    return RedirectToAction(
+        nameof(VerificarDisponibilidad),
+        new { id = pedido.Id });
 }
 
-public async Task<IActionResult> VerificarDisponibilidad(int id)
+        public async Task<IActionResult> VerificarDisponibilidad(int id)
+        {
+            var pedido = await _context.Pedidos.Include(p => p.Cliente).Include(p => p.Detalles).ThenInclude(d => d.ProductoTerminado)
+                .FirstOrDefaultAsync(p => p.Id == id);
+            if (pedido == null) return NotFound();
+
+            // Reserva real: lo que otros pedidos "Confirmado" ya comprometieron
+            var ids = pedido.Detalles.Select(d => d.ProductoTerminadoId).ToList();
+            var reservados = await _context.DetallesPedido
+                .Where(d => d.PedidoId != id && d.Pedido!.Estado == "Confirmado" && ids.Contains(d.ProductoTerminadoId))
+                .GroupBy(d => d.ProductoTerminadoId)
+                .Select(g => new { g.Key, Total = g.Sum(x => x.Cantidad) })
+                .ToDictionaryAsync(x => x.Key, x => x.Total);
+            ViewBag.Reservados = reservados;
+            return View(pedido);
+        }
+
+private async Task NotificarProduccionSiHayFaltantes(int pedidoId)
 {
-    var pedido = await _context.Pedidos.Include(p => p.Cliente).Include(p => p.Detalles).ThenInclude(d => d.ProductoTerminado)
-        .FirstOrDefaultAsync(p => p.Id == id);
-    if (pedido == null) return NotFound();
+    var pedido = await _context.Pedidos
+        .Include(p => p.Detalles)
+        .ThenInclude(d => d.ProductoTerminado)
+        .FirstOrDefaultAsync(p => p.Id == pedidoId);
 
-    // Reserva real: lo que otros pedidos "Confirmado" ya comprometieron
-    var ids = pedido.Detalles.Select(d => d.ProductoTerminadoId).ToList();
+    if (pedido == null)
+        return;
+
+    var idsProductos = pedido.Detalles
+        .Select(d => d.ProductoTerminadoId)
+        .Distinct()
+        .ToList();
+
+    // Stock ya reservado por otros pedidos confirmados
     var reservados = await _context.DetallesPedido
-        .Where(d => d.PedidoId != id && d.Pedido!.Estado == "Confirmado" && ids.Contains(d.ProductoTerminadoId))
+        .Where(d =>
+            d.PedidoId != pedidoId &&
+            d.Pedido!.Estado == "Confirmado" &&
+            idsProductos.Contains(d.ProductoTerminadoId))
         .GroupBy(d => d.ProductoTerminadoId)
-        .Select(g => new { g.Key, Total = g.Sum(x => x.Cantidad) })
-        .ToDictionaryAsync(x => x.Key, x => x.Total);
-    ViewBag.Reservados = reservados;
-    return View(pedido);
+        .Select(g => new
+        {
+            ProductoId = g.Key,
+            Cantidad = g.Sum(x => x.Cantidad)
+        })
+        .ToDictionaryAsync(
+            x => x.ProductoId,
+            x => x.Cantidad);
+
+    // Agrupar productos del pedido para evitar errores si
+    // el mismo producto aparece más de una vez
+    var solicitados = pedido.Detalles
+        .GroupBy(d => d.ProductoTerminadoId)
+        .Select(g => new
+        {
+            ProductoId = g.Key,
+            Producto = g.First().ProductoTerminado,
+            CantidadSolicitada = g.Sum(x => x.Cantidad)
+        })
+        .ToList();
+
+    var faltantes = new List<string>();
+
+    foreach (var item in solicitados)
+    {
+        if (item.Producto == null)
+            continue;
+
+        var reservado = reservados.GetValueOrDefault(item.ProductoId);
+
+        var disponible =
+            item.Producto.StockActual - reservado;
+
+        if (disponible < item.CantidadSolicitada)
+        {
+            var cantidadFaltante =
+                item.CantidadSolicitada - disponible;
+
+            faltantes.Add(
+                $"{item.Producto.Nombre}: {cantidadFaltante:N0} unidad(es)");
+        }
+    }
+
+    if (!faltantes.Any())
+        return;
+
+    // Evitar generar la misma notificación muchas veces
+    var yaNotificado = await _context.Notificaciones
+        .AnyAsync(n =>
+            n.PedidoId == pedidoId &&
+            n.Area == "Producción" &&
+            !n.Leida);
+
+    if (yaNotificado)
+        return;
+
+    var mensaje =
+        $"El pedido {pedido.CodigoPedido} requiere producción adicional. " +
+        $"Faltante: {string.Join(", ", faltantes)}.";
+
+    _context.Notificaciones.Add(new Notificacion
+    {
+        PedidoId = pedido.Id,
+        Area = "Producción",
+        Mensaje = mensaje,
+        Fecha = DateTime.Now,
+        Leida = false
+    });
+
+    await _context.SaveChangesAsync();
 }
 
-[HttpPost]
+        [HttpPost]
 public async Task<IActionResult> ConfirmarReserva(int id)
 {
     var pedido = await _context.Pedidos.Include(p => p.Detalles).ThenInclude(d => d.ProductoTerminado)
@@ -106,8 +206,15 @@ public async Task<IActionResult> ConfirmarReserva(int id)
             .SumAsync(x => x.Cantidad);
         if (d.ProductoTerminado!.StockActual - reservado < d.Cantidad)
         {
-            TempData["Error"] = $"Stock insuficiente de {d.ProductoTerminado.Nombre}.";
-            return RedirectToAction(nameof(VerificarDisponibilidad), new { id });
+            await NotificarProduccionSiHayFaltantes(id);
+
+            TempData["Error"] =
+                $"Stock insuficiente de {d.ProductoTerminado.Nombre}. " +
+                "Se notificó al área de Producción.";
+
+            return RedirectToAction(
+                nameof(VerificarDisponibilidad),
+                new { id });
         }
     }
 

@@ -8,7 +8,7 @@
     <div>
         <h2 class="fw-bold text-dark m-0">Notificaciones</h2>
         <p class="text-muted small m-0">
-            Avisos enviados al área de Distribución.
+            Avisos generados para las áreas de Producción y Distribución.
         </p>
     </div>
 </div>
@@ -63,6 +63,10 @@ else
                                         </span>
                                     }
 
+                                    <span class="badge bg-info text-dark rounded-pill">
+                                        @notificacion.Area
+                                    </span>
+
                                     <small class="text-muted">
                                         @notificacion.Fecha.ToString("dd/MM/yyyy HH:mm")
                                     </small>
@@ -79,6 +83,16 @@ else
                                         Orden:
                                         <strong>
                                             @notificacion.OrdenProduccion.NumeroOrden
+                                        </strong>
+                                    </small>
+                                }
+
+                                @if (notificacion.Pedido != null)
+                                {
+                                    <small class="text-muted d-block">
+                                        Pedido:
+                                        <strong>
+                                            @notificacion.Pedido.CodigoPedido
                                         </strong>
                                     </small>
                                 }
