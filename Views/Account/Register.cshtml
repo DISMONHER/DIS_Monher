@@ -1,0 +1,160 @@
+
+@{
+    ViewData["Title"] = "Registrarse";
+}
+
+<div class="container py-5" style="max-width:850px">
+
+    <div class="card shadow-sm border-0 rounded-4">
+
+        <div class="card-body p-4 p-md-5">
+
+            <div class="text-center mb-4">
+                <h2 class="fw-bold">Crear cuenta</h2>
+                <p class="text-muted">
+                    Regístrate para realizar pedidos en MONHER
+                </p>
+            </div>
+
+            <form asp-controller="Account"
+                  asp-action="Register"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="All"
+                     class="text-danger mb-3"></div>
+
+                <h5 class="fw-bold mb-3">Datos personales</h5>
+
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+                        <label class="form-label">Nombres</label>
+                        <input name="nombres"
+                               value="@Context.Request.Form["nombres"]"
+                               class="form-control"
+                               maxlength="150"
+                               required />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Apellidos</label>
+                        <input name="apellidos"
+                               value="@Context.Request.Form["apellidos"]"
+                               class="form-control"
+                               maxlength="150"
+                               required />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            Fecha de nacimiento
+                        </label>
+                        <input type="date"
+                               name="fechaNacimiento"
+                               value="@Context.Request.Form["fechaNacimiento"]"
+                               class="form-control"
+                               max="@DateTime.Today.ToString("yyyy-MM-dd")"
+                               required />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">DNI / RUC</label>
+                        <input name="documento"
+                               value="@Context.Request.Form["documento"]"
+                               class="form-control"
+                               maxlength="11"
+                               pattern="([0-9]{8}|[0-9]{11})"
+                               required />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            Razón social / Nombre
+                        </label>
+                        <input name="razonSocial"
+                               value="@Context.Request.Form["razonSocial"]"
+                               class="form-control"
+                               maxlength="150"
+                               required />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Teléfono</label>
+                        <input name="telefono"
+                               value="@Context.Request.Form["telefono"]"
+                               class="form-control"
+                               maxlength="30"
+                               required />
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">Dirección</label>
+                        <input name="direccion"
+                               value="@Context.Request.Form["direccion"]"
+                               class="form-control"
+                               maxlength="250"
+                               placeholder="Calle, avenida, número y distrito"
+                               required />
+                    </div>
+                </div>
+
+                <hr class="my-4" />
+
+                <h5 class="fw-bold mb-3">
+                    Credenciales de acceso
+                </h5>
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        Correo electrónico
+                    </label>
+                    <input name="email"
+                           type="email"
+                           value="@Context.Request.Form["email"]"
+                           class="form-control"
+                           autocomplete="email"
+                           required />
+                </div>
+
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+                        <label class="form-label">Contraseña</label>
+                        <input name="password"
+                               type="password"
+                               class="form-control"
+                               autocomplete="new-password"
+                               minlength="8"
+                               required />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            Confirmar contraseña
+                        </label>
+                        <input name="confirmarPassword"
+                               type="password"
+                               class="form-control"
+                               autocomplete="new-password"
+                               minlength="8"
+                               required />
+                    </div>
+                </div>
+
+                <button type="submit"
+                        class="btn btn-warning w-100 mt-4 fw-bold">
+                    Crear cuenta
+                </button>
+
+                <div class="text-center mt-3">
+                    <a asp-controller="Account"
+                       asp-action="Login">
+                        ¿Ya tienes cuenta? Iniciar sesión
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

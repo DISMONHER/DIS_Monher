@@ -14,9 +14,11 @@ using Microsoft.AspNetCore.Http;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DIS_Monher.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class ProductionController : Controller
     {
         private readonly ApplicationDbContext _context;

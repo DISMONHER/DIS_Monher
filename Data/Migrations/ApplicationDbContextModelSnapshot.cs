@@ -3,8 +3,8 @@ using System;
 using DIS_Monher.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -18,32 +18,32 @@ namespace DIS_Monher.Data.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "9.0.5")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("DIS_Monher.Models.AlertaStock", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<bool>("Atendida")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<decimal>("CantidadActual")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("numeric");
 
                     b.Property<decimal>("CantidadSugeridaCompra")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("numeric");
 
                     b.Property<DateTime>("FechaGeneracion")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("MaterialId")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -52,33 +52,65 @@ namespace DIS_Monher.Data.Migrations
                     b.ToTable("AlertasStock");
                 });
 
+            modelBuilder.Entity("DIS_Monher.Models.AvanceProduccion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CantidadProducida")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("Fecha")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Observaciones")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("OrdenProduccionId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrdenProduccionId");
+
+                    b.ToTable("AvancesProduccion");
+                });
+
             modelBuilder.Entity("DIS_Monher.Models.Cliente", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Contacto")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Direccion")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Documento")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("RazonSocial")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("TipoCliente")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -89,36 +121,36 @@ namespace DIS_Monher.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("FechaEmision")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<decimal>("IGV")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("numeric");
 
                     b.Property<string>("MetodoPago")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("NumeroComprobante")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<int>("PedidoId")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<decimal>("Subtotal")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("numeric");
 
                     b.Property<string>("TipoComprobante")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<decimal>("Total")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("numeric");
 
                     b.HasKey("Id");
 
@@ -131,30 +163,30 @@ namespace DIS_Monher.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("EstadoEntrega")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("EvidenciaFirma")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("FechaDespacho")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("FechaEntregaReal")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("PedidoId")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<string>("Transportista")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -166,13 +198,26 @@ namespace DIS_Monher.Data.Migrations
             modelBuilder.Entity("DIS_Monher.Models.DetalleOrdenMaterial", b =>
                 {
                     b.Property<int>("OrdenProduccionId")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<int>("MaterialId")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<decimal>("Cantidad")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime>("FechaAsignacion")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("FechaUltimoAjuste")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("JustificacionAjuste")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ResponsableAsignacion")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("OrdenProduccionId", "MaterialId");
 
@@ -185,25 +230,25 @@ namespace DIS_Monher.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("Cantidad")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<int>("PedidoId")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<string>("Personalizacion")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<decimal>("Precio")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("numeric");
 
                     b.Property<int>("ProductoTerminadoId")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -214,34 +259,59 @@ namespace DIS_Monher.Data.Migrations
                     b.ToTable("DetallesPedido");
                 });
 
+            modelBuilder.Entity("DIS_Monher.Models.EvidenciaCalidad", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("FechaCarga")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("InspeccionCalidadId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("RutaArchivo")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InspeccionCalidadId");
+
+                    b.ToTable("EvidenciasCalidad");
+                });
+
             modelBuilder.Entity("DIS_Monher.Models.InspeccionCalidad", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<bool>("Aprobado")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<DateTime>("Fecha")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Inspector")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Lote")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Observaciones")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<int>("OrdenProduccionId")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -254,48 +324,51 @@ namespace DIS_Monher.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Almacen")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Categoria")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Codigo")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Descripcion")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("FechaIngreso")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<decimal>("StockActual")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("numeric");
 
                     b.Property<decimal>("StockMinimo")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("numeric");
 
                     b.Property<string>("UnidadMedida")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("UsuarioResponsable")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Codigo")
+                        .IsUnique();
 
                     b.ToTable("Materiales");
                 });
@@ -304,30 +377,30 @@ namespace DIS_Monher.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<decimal>("Cantidad")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("numeric");
 
                     b.Property<DateTime>("Fecha")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("MaterialId")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<string>("Motivo")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Responsable")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("TipoMovimiento")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -336,48 +409,85 @@ namespace DIS_Monher.Data.Migrations
                     b.ToTable("MovimientosInventario");
                 });
 
+            modelBuilder.Entity("DIS_Monher.Models.Notificacion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Area")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("Fecha")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("Leida")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Mensaje")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int?>("OrdenProduccionId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("PedidoId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrdenProduccionId");
+
+                    b.HasIndex("PedidoId");
+
+                    b.ToTable("Notificaciones");
+                });
+
             modelBuilder.Entity("DIS_Monher.Models.OrdenProduccion", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("Cantidad")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<int>("CantidadProducida")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<string>("Cliente")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Estado")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("FechaCreacion")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("FechaEntrega")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("FechaFin")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("NumeroOrden")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Responsable")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("TipoCaja")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -388,26 +498,26 @@ namespace DIS_Monher.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("ClienteId")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<string>("CodigoPedido")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Estado")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("FechaEntrega")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<decimal>("Total")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("numeric");
 
                     b.HasKey("Id");
 
@@ -419,13 +529,13 @@ namespace DIS_Monher.Data.Migrations
             modelBuilder.Entity("DIS_Monher.Models.ProductoMaterial", b =>
                 {
                     b.Property<int>("ProductoTerminadoId")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<int>("MaterialId")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<decimal>("CantidadRequerida")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("numeric");
 
                     b.HasKey("ProductoTerminadoId", "MaterialId");
 
@@ -438,27 +548,27 @@ namespace DIS_Monher.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Codigo")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<decimal>("PrecioUnitario")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("numeric");
 
                     b.Property<decimal>("StockActual")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("numeric");
 
                     b.Property<string>("TipoCaja")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -468,26 +578,25 @@ namespace DIS_Monher.Data.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("character varying(256)");
 
                     b.Property<string>("NormalizedName")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("character varying(256)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedName")
                         .IsUnique()
-                        .HasDatabaseName("RoleNameIndex")
-                        .HasFilter("[NormalizedName] IS NOT NULL");
+                        .HasDatabaseName("RoleNameIndex");
 
                     b.ToTable("AspNetRoles", (string)null);
                 });
@@ -496,19 +605,19 @@ namespace DIS_Monher.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ClaimType")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("ClaimValue")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("RoleId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -520,54 +629,54 @@ namespace DIS_Monher.Data.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUser", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text");
 
                     b.Property<int>("AccessFailedCount")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("character varying(256)");
 
                     b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("character varying(256)");
 
                     b.Property<string>("NormalizedUserName")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("character varying(256)");
 
                     b.Property<string>("PasswordHash")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("SecurityStamp")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("character varying(256)");
 
                     b.HasKey("Id");
 
@@ -576,8 +685,7 @@ namespace DIS_Monher.Data.Migrations
 
                     b.HasIndex("NormalizedUserName")
                         .IsUnique()
-                        .HasDatabaseName("UserNameIndex")
-                        .HasFilter("[NormalizedUserName] IS NOT NULL");
+                        .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
@@ -586,19 +694,19 @@ namespace DIS_Monher.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ClaimType")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("ClaimValue")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -611,18 +719,18 @@ namespace DIS_Monher.Data.Migrations
                 {
                     b.Property<string>("LoginProvider")
                         .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("ProviderKey")
                         .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("ProviderDisplayName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text");
 
                     b.HasKey("LoginProvider", "ProviderKey");
 
@@ -634,10 +742,10 @@ namespace DIS_Monher.Data.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                 {
                     b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text");
 
                     b.Property<string>("RoleId")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text");
 
                     b.HasKey("UserId", "RoleId");
 
@@ -649,18 +757,18 @@ namespace DIS_Monher.Data.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
                     b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text");
 
                     b.Property<string>("LoginProvider")
                         .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("Name")
                         .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("Value")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
@@ -676,6 +784,17 @@ namespace DIS_Monher.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Material");
+                });
+
+            modelBuilder.Entity("DIS_Monher.Models.AvanceProduccion", b =>
+                {
+                    b.HasOne("DIS_Monher.Models.OrdenProduccion", "OrdenProduccion")
+                        .WithMany("Avances")
+                        .HasForeignKey("OrdenProduccionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("OrdenProduccion");
                 });
 
             modelBuilder.Entity("DIS_Monher.Models.ComprobanteVenta", b =>
@@ -738,6 +857,17 @@ namespace DIS_Monher.Data.Migrations
                     b.Navigation("ProductoTerminado");
                 });
 
+            modelBuilder.Entity("DIS_Monher.Models.EvidenciaCalidad", b =>
+                {
+                    b.HasOne("DIS_Monher.Models.InspeccionCalidad", "InspeccionCalidad")
+                        .WithMany("Evidencias")
+                        .HasForeignKey("InspeccionCalidadId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("InspeccionCalidad");
+                });
+
             modelBuilder.Entity("DIS_Monher.Models.InspeccionCalidad", b =>
                 {
                     b.HasOne("DIS_Monher.Models.OrdenProduccion", "OrdenProduccion")
@@ -758,6 +888,21 @@ namespace DIS_Monher.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Material");
+                });
+
+            modelBuilder.Entity("DIS_Monher.Models.Notificacion", b =>
+                {
+                    b.HasOne("DIS_Monher.Models.OrdenProduccion", "OrdenProduccion")
+                        .WithMany("Notificaciones")
+                        .HasForeignKey("OrdenProduccionId");
+
+                    b.HasOne("DIS_Monher.Models.Pedido", "Pedido")
+                        .WithMany()
+                        .HasForeignKey("PedidoId");
+
+                    b.Navigation("OrdenProduccion");
+
+                    b.Navigation("Pedido");
                 });
 
             modelBuilder.Entity("DIS_Monher.Models.Pedido", b =>
@@ -841,9 +986,18 @@ namespace DIS_Monher.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("DIS_Monher.Models.InspeccionCalidad", b =>
+                {
+                    b.Navigation("Evidencias");
+                });
+
             modelBuilder.Entity("DIS_Monher.Models.OrdenProduccion", b =>
                 {
+                    b.Navigation("Avances");
+
                     b.Navigation("MaterialesAsignados");
+
+                    b.Navigation("Notificaciones");
                 });
 
             modelBuilder.Entity("DIS_Monher.Models.Pedido", b =>

@@ -1,79 +1,306 @@
-﻿@{
+﻿
+@{
     var ctrl = ViewContext.RouteData.Values["controller"]?.ToString();
     var act = ViewContext.RouteData.Values["action"]?.ToString();
-    string Activo(string c, bool cond = true) => ctrl == c && cond ? "active" : "";
+
+    string Activo(string c, bool cond = true)
+        => ctrl == c && cond ? "active" : "";
+
+    // Identificar usuario autenticado y rol
+    bool autenticado = User.Identity?.IsAuthenticated == true;
+    bool esAdmin = User.IsInRole("Admin");
+    bool esUsuario = User.IsInRole("Usuario");
 }
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
     <title>@ViewData["Title"] - MONHER</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <!-- Fuente Inter -->
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
+
+    <!-- Estilos originales de MONHER -->
+    <link rel="stylesheet"
+          href="~/css/site.css"
+          asp-append-version="true" />
 </head>
+
 <body>
+
+    <!-- ==========================================
+         SIDEBAR PRINCIPAL
+         ========================================== -->
+
     <aside class="sidebar">
-        <div class="brand"><span class="brand-icon"><i class="fa-solid fa-cubes-stacked"></i></span> MONHER</div>
-        <small class="nav-title">INVENTARIO</small>
-        <a class="nav-link @Activo("Materials", act == "Index")" href="/Materials/Index"><i class="fa-solid fa-boxes-stacked"></i> Registro de Materiales</a>
-        <a class="nav-link @Activo("Materials", act == "ControlInventario")" href="/Materials/ControlInventario"><i class="fa-solid fa-warehouse"></i> Control de Inventario</a>
-        <small class="nav-title">PRODUCCIÓN</small>
-        <a class="nav-link @Activo("FinishedProducts")" href="/FinishedProducts/Index"><i class="fa-solid fa-box-archive"></i> Productos Terminados</a>
-        <a class="nav-link @Activo("Production", act == "Index")"href="/Production/Index"><i class="fa-solid fa-gears"></i>Órdenes de Producción</a>
-        <small class="nav-title">VENTAS</small>
 
-<a class="nav-link @Activo("Sales", act == "Pedidos" || act == "VerificarDisponibilidad" || act == "Facturacion")"
-   href="/Sales/Pedidos">
-    <i class="fa-solid fa-cart-shopping"></i>
-    Pedidos y Ventas
-</a>
+        <!-- LOGOTIPO -->
+        <div class="brand">
+            <span class="brand-icon">
+                <i class="fa-solid fa-cubes-stacked"></i>
+            </span>
+            MONHER
+        </div>
 
-<a class="nav-link @Activo("Sales", act == "Despachos" || act == "DespachoView")"
-   href="/Sales/Despachos">
-    <i class="fa-solid fa-truck-fast"></i>
-    Despacho y Entrega
-</a>
+        <!-- ======================================
+             VISITANTES SIN INICIAR SESIÓN
+             ====================================== -->
 
-<a asp-controller="Production"
-   asp-action="ReporteCalidad"
-   class="nav-link @Activo("Production", act == "ReporteCalidad")">
-    <i class="fa-solid fa-clipboard-check"></i>
-    <span>Control de Calidad</span>
-</a>
+        @if (!autenticado)
+        {
+            <small class="nav-title">ACCESO</small>
 
-<a asp-controller="Notificaciones"
-   asp-action="Index"
-   class="nav-link @Activo("Notificaciones")">
-    <i class="fa-solid fa-bell"></i>
-    Notificaciones
-</a>
+            <a asp-controller="Account"
+               asp-action="Login"
+               class="nav-link @Activo("Account", act == "Login")">
 
-<a class="nav-link @Activo("Sales", act == "ReporteVentas")"
-   href="/Sales/ReporteVentas">
-    <i class="fa-solid fa-chart-pie"></i>
-    Reportes
-</a>
+                <i class="fa-solid fa-right-to-bracket"></i>
+                Iniciar sesión
+            </a>
+
+            <a asp-controller="Account"
+               asp-action="Register"
+               class="nav-link @Activo("Account", act == "Register")">
+
+                <i class="fa-solid fa-user-plus"></i>
+                Crear cuenta
+            </a>
+        }
+
+        <!-- ======================================
+             ROL USUARIO - CLIENTE
+             ====================================== -->
+
+        @if (autenticado && esUsuario)
+        {
+            <small class="nav-title">MI CUENTA</small>
+
+            <a asp-controller="MisPedidos"
+               asp-action="Index"
+               class="nav-link @Activo("MisPedidos")">
+
+                <i class="fa-solid fa-cart-shopping"></i>
+                Mis pedidos
+            </a>
+        }
+
+        <!-- ======================================
+             ROL ADMINISTRADOR
+             ====================================== -->
+
+        @if (autenticado && esAdmin)
+        {
+            <!-- INVENTARIO -->
+            <small class="nav-title">INVENTARIO</small>
+
+            <a asp-controller="Materials"
+               asp-action="Index"
+               class="nav-link @Activo("Materials", act == "Index")">
+
+                <i class="fa-solid fa-boxes-stacked"></i>
+                Registro de Materiales
+            </a>
+
+            <a asp-controller="Materials"
+               asp-action="ControlInventario"
+               class="nav-link @Activo("Materials", act == "ControlInventario")">
+
+                <i class="fa-solid fa-warehouse"></i>
+                Control de Inventario
+            </a>
+
+            <!-- PRODUCCIÓN -->
+            <small class="nav-title">PRODUCCIÓN</small>
+
+            <a asp-controller="FinishedProducts"
+               asp-action="Index"
+               class="nav-link @Activo("FinishedProducts")">
+
+                <i class="fa-solid fa-box-archive"></i>
+                Productos Terminados
+            </a>
+
+            <a asp-controller="Production"
+               asp-action="Index"
+               class="nav-link @Activo("Production", act == "Index")">
+
+                <i class="fa-solid fa-gears"></i>
+                Órdenes de Producción
+            </a>
+
+            <!-- VENTAS -->
+            <small class="nav-title">VENTAS</small>
+
+            <a asp-controller="Sales"
+               asp-action="Pedidos"
+               class="nav-link @Activo("Sales",
+                   act == "Pedidos" ||
+                   act == "VerificarDisponibilidad" ||
+                   act == "Facturacion")">
+
+                <i class="fa-solid fa-cart-shopping"></i>
+                Pedidos y Ventas
+            </a>
+
+            <a asp-controller="Sales"
+               asp-action="Despachos"
+               class="nav-link @Activo("Sales",
+                   act == "Despachos" ||
+                   act == "DespachoView")">
+
+                <i class="fa-solid fa-truck-fast"></i>
+                Despacho y Entrega
+            </a>
+
+            <!-- CONTROL DE CALIDAD -->
+            <a asp-controller="Production"
+               asp-action="ReporteCalidad"
+               class="nav-link @Activo("Production",
+                   act == "ReporteCalidad")">
+
+                <i class="fa-solid fa-clipboard-check"></i>
+                Control de Calidad
+            </a>
+
+            <!-- NOTIFICACIONES -->
+            <a asp-controller="Notificaciones"
+               asp-action="Index"
+               class="nav-link @Activo("Notificaciones")">
+
+                <i class="fa-solid fa-bell"></i>
+                Notificaciones
+            </a>
+
+            <!-- REPORTES -->
+            <a asp-controller="Sales"
+               asp-action="ReporteVentas"
+               class="nav-link @Activo("Sales",
+                   act == "ReporteVentas")">
+
+                <i class="fa-solid fa-chart-pie"></i>
+                Reportes
+            </a>
+        }
+
+        <!-- ======================================
+             INFORMACIÓN DE SESIÓN
+             ====================================== -->
+
+        @if (autenticado)
+        {
+            <div class="mt-4 px-3">
+
+                <div class="border-top pt-3">
+
+                    <div class="small text-muted mb-1">
+                        Sesión iniciada
+                    </div>
+
+                    <div class="small fw-bold text-break">
+                        <i class="fa-solid fa-circle-user me-1"></i>
+                        @User.Identity?.Name
+                    </div>
+
+                    <div class="mt-2">
+                        @if (esAdmin)
+                        {
+                            <span class="badge bg-primary">
+                                Administrador
+                            </span>
+                        }
+                        else if (esUsuario)
+                        {
+                            <span class="badge bg-success">
+                                Usuario
+                            </span>
+                        }
+                    </div>
+
+                    <form asp-controller="Account"
+                          asp-action="Logout"
+                          method="post"
+                          class="mt-3">
+
+                        @Html.AntiForgeryToken()
+
+                        <button type="submit"
+                                class="btn btn-outline-danger btn-sm w-100">
+
+                            <i class="fa-solid fa-right-from-bracket me-1"></i>
+                            Cerrar sesión
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+        }
+
     </aside>
 
+    <!-- ==========================================
+         CONTENIDO PRINCIPAL
+         ========================================== -->
+
     <main class="main-content">
+
         <div class="container-fluid">
+
+            <!-- MENSAJES DE ÉXITO -->
             @if (TempData["Ok"] != null)
             {
-                <div class="alert alert-monher ok"><i class="fa-solid fa-circle-check"></i> @TempData["Ok"]</div>
+                <div class="alert alert-monher ok">
+
+                    <i class="fa-solid fa-circle-check"></i>
+
+                    @TempData["Ok"]
+
+                </div>
             }
+
+            <!-- MENSAJES DE ERROR -->
             @if (TempData["Error"] != null)
             {
-                <div class="alert alert-monher err"><i class="fa-solid fa-circle-exclamation"></i> @TempData["Error"]</div>
+                <div class="alert alert-monher err">
+
+                    <i class="fa-solid fa-circle-exclamation"></i>
+
+                    @TempData["Error"]
+
+                </div>
             }
+
+            <!-- VISTA ACTUAL -->
             @RenderBody()
+
         </div>
-        <footer class="footer">&copy; 2026 MONHER E.I.R.L. · Sistema de Gestión Integral</footer>
+
+        <!-- FOOTER ORIGINAL -->
+        <footer class="footer">
+            &copy; 2026 MONHER E.I.R.L. · Sistema de Gestión Integral
+        </footer>
+
     </main>
 
+    <!-- BOOTSTRAP JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
+
 </body>
 </html>

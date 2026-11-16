@@ -8,9 +8,10 @@ using DIS_Monher.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-
+using Microsoft.AspNetCore.Authorization;
 namespace DIS_Monher.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class FinishedProductsController : Controller
     {
         private readonly ApplicationDbContext _context;
